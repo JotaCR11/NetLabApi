@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Netlab.WebApp</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Controllers\LoginController.cs~RFe25af5.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Netlab.02.Business\Netlab.02.Business.csproj" />
+    <ProjectReference Include="..\Netlab.05.Helper\Netlab.05.Helper.csproj" />
+  </ItemGroup>
+
+</Project>

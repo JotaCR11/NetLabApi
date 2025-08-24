@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Netlab.03.Domain\Netlab.03.Domain.csproj" />
+    <ProjectReference Include="..\Netlab.04.Infrastructure\Netlab.04.Infrastructure.csproj" />
+    <ProjectReference Include="..\Netlab.05.Helper\Netlab.05.Helper.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Netlab.Business</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+@Netlab._01.WebApp_HostAddress = http://localhost:5185
+
+GET {{Netlab._01.WebApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
