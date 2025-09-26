@@ -21,5 +21,17 @@ namespace Netlab.WebApp.Controllers
             var response = await _userService.ObtenerUsuarios(request);
             return Ok(response);
         }
+
+        [HttpPost("registrarusuario")]
+        public async Task RegistrarUsuario([FromBody] User request)
+        {
+            await _userService.RegistrarUsuario(request);
+        }
+
+        [HttpPost("editarusuario")]
+        public async Task EditarUsuario([FromBody] User request)
+        {
+            await _userService.EditarUsuario(request);
+        }
     }
 }

@@ -49,31 +49,69 @@ namespace Netlab.Infrastructure.Repositories
         {
             using var db = _databaseFactory.GetDatabase();
             string sql = "EXEC pNLI_Usuario @0, @1, @2, @3, @4, @5, @6, @7, @8, @9, ";
-            sql += "@10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20";
+            sql += "@10, @11, @12, @13, @14, @15, @16, @17, @18, @19";
 
             var response = await db.ExecuteScalarAsync<string>
                 (
                     sql,
-                    usurio.LOGIN,
-                    usurio.DOCUMENTOIDENTIDAD,
-                    usurio.APELLIDOPATERNO,
-                    usurio.APELLIDOMATERNO,
-                    usurio.NOMBRES,
-                    usurio.CODIGOCOLEGIO,
-                    usurio.RNE,
-                    usurio.CARGO,
-                    usurio.CORREO,
-                    usurio.ESTATUS,
-                    usurio.IDUSUARIOREGISTRO,
-                    usurio.TELEFONOCONTACTO,
-                    usurio.TIEMPOCADUCIDAD,
-                    usurio.IDPROFESION,
-                    usurio.IDTIPOUSUARIO,
-                    usurio.IDNIVELAPROBACION,
-                    usurio.FIRMADIGITAL,
-                    usurio.CONTRASENIA
+                    new object[] {
+                                    usurio.LOGIN,
+                                    usurio.DOCUMENTOIDENTIDAD,
+                                    usurio.APELLIDOPATERNO,
+                                    usurio.APELLIDOMATERNO,
+                                    usurio.NOMBRES,
+                                    usurio.CODIGOCOLEGIO,
+                                    usurio.RNE,
+                                    usurio.CARGO,
+                                    usurio.CORREO,
+                                    usurio.ESTATUS,
+                                    usurio.IDUSUARIOREGISTRO,
+                                    usurio.TELEFONOCONTACTO,
+                                    usurio.TIEMPOCADUCIDAD,
+                                    usurio.IDPROFESION,
+                                    usurio.IDTIPOUSUARIO,
+                                    usurio.IDCOMPONENTE,
+                                    usurio.IDTIPOACCESO,
+                                    usurio.IDNIVELAPROBACION,
+                                    usurio.FIRMADIGITAL,
+                                    usurio.CONTRASENIA
+                    }
                 );
             return response;
+        }
+
+        public async Task EditarUsuario(User usurio)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            string sql = "EXEC pNLU_Usuario @0, @1, @2, @3, @4, @5, @6, @7, @8, @9, ";
+            sql += "@10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20, @21";
+
+            var response = await db.ExecuteAsync
+                (
+                    sql,
+                    new object[] {
+                                    usurio.LOGIN,
+                                    usurio.DOCUMENTOIDENTIDAD,
+                                    usurio.APELLIDOPATERNO,
+                                    usurio.APELLIDOMATERNO,
+                                    usurio.NOMBRES,
+                                    usurio.CODIGOCOLEGIO,
+                                    usurio.RNE,
+                                    usurio.CARGO,
+                                    usurio.CORREO,
+                                    usurio.ESTATUS,
+                                    usurio.IDUSUARIOREGISTRO,
+                                    usurio.TELEFONOCONTACTO,
+                                    usurio.TIEMPOCADUCIDAD,
+                                    usurio.IDPROFESION,
+                                    usurio.IDTIPOUSUARIO,
+                                    usurio.IDCOMPONENTE,
+                                    usurio.IDTIPOACCESO,
+                                    usurio.IDNIVELAPROBACION,
+                                    usurio.FIRMADIGITAL,
+                                    usurio.CONTRASENIA
+                    }
+                );
         }
     }
 }
