@@ -49,6 +49,12 @@ public class Menu : General
     public List<Menu> Hijos { get; set; }
 }
 
+public class AreaProcesamiento : General
+{
+    public int IdAreaProcesamiento { get; set; }
+    public string Nombre { get; set; }
+}
+
 public class UsuarioAreaProcesamiento : General
 {
     public int IdUsuario { get; set; }
@@ -83,4 +89,10 @@ public class UsuarioLaboratorio : General
     public string NomLaboratorio { get; set; }
     public string NomInstitucion { get; set; }
     public int? IdInstitucion { get; set; }
+}
+
+public class Examen : General
+{
+    public string IdExamen { get; set; }
+    public string Nombre { get; set; }
 }
