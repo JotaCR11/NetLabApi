@@ -71,8 +71,7 @@ builder.Services.AddScoped<IConsultaResultadosArbovirosisRepository, ConsultaRes
 builder.Services.AddScoped<IConsultaResultadosArbovirosisService, ConsultaResultadosArbovirosisService>();
 builder.Services.AddScoped<IRegistrarNotiWebRepository, RegistrarNotiWebRepository>();
 builder.Services.AddScoped<IRegistrarNotiWebService, RegistrarNotiWebService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 // Controllers
 builder.Services.AddControllers(options =>

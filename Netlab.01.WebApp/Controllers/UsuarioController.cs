@@ -11,8 +11,8 @@ namespace Netlab.WebApp.Controllers
     [Authorize]
     public class UsuarioController : ControllerBase
     {
-        private readonly IUserService _userService;
-        public UsuarioController(IUserService userService)
+        private readonly IUsuarioService _userService;
+        public UsuarioController(IUsuarioService userService)
         {
             _userService = userService;
         }

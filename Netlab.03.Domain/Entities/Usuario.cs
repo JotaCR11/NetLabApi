@@ -45,6 +45,13 @@ namespace Netlab.Domain.Entities
         public int MOTIVOINACTIVACION { get; set; }
         public string OTROMOTIVOINACTIVACION { get; set; }
         public int USUARIOINACTIVACION { get; set; }
+    }
 
+    [TableName("AreaProcesamiento")]
+    [PrimaryKey("idAreaProcesamiento", AutoIncrement = true)]
+    public class AreaProcesamiento
+    {
+        public int IdAreaProcesamiento { get; set; }
+        public string Nombre { get; set; }
     }
 }

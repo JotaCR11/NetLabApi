@@ -11,19 +11,19 @@ using System.Threading.Tasks;
 
 namespace Netlab.Business.Services
 {
-    public interface IUserService
+    public interface IUsuarioService
     {
         Task<List<User>> ObtenerUsuarios(User usuario);
         Task<bool> ExisteLogin(string login);
         Task RegistrarUsuario(User usurio);
         Task EditarUsuario(User usurio);
     }
-    public class UserService : IUserService
+    public class UsuarioService : IUsuarioService
     {
-        private readonly IUserRepository _userRepo;
+        private readonly IUsuarioRepository _userRepo;
         private readonly EmailService _emailService;
 
-        public UserService(IUserRepository userRepo)
+        public UsuarioService(IUsuarioRepository userRepo)
         {
             _userRepo = userRepo;
         }

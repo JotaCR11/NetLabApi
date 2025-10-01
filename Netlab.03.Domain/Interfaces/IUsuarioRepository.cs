@@ -12,5 +12,9 @@ namespace Netlab.Domain.Interfaces
     {
         Task<Usuario?> GetByLoginAsync(AuthRequest request);
         Task<List<string>> ObtenerRolesAsync(int idUsuario);
+        Task<List<User>> ObtenerUsuarios(User usuario);
+        Task<int> ExisteLogin(string login);
+        Task<string> RegistrarUsuario(User usurio);
+        Task EditarUsuario(User usurio);
     }
 }

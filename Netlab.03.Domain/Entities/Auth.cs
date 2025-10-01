@@ -49,12 +49,6 @@ public class Menu : General
     public List<Menu> Hijos { get; set; }
 }
 
-public class AreaProcesamiento : General
-{
-    public int IdAreaProcesamiento { get; set; }
-    public string Nombre { get; set; }
-}
-
 public class UsuarioAreaProcesamiento : General
 {
     public int IdUsuario { get; set; }

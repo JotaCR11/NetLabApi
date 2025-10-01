@@ -9,9 +9,9 @@ namespace Netlab.Domain.Interfaces
 {
     public interface IUserRepository
     {
-        Task<List<User>> ObtenerUsuarios(User usuario);
+        Task<List<Usuario>> ObtenerUsuarios(Usuario usuario);
         Task<int> ExisteLogin(string login);
-        Task<string> RegistrarUsuario(User usurio);
-        Task EditarUsuario(User usurio);
+        Task<string> RegistrarUsuario(Usuario usurio);
+        Task EditarUsuario(Usuario usurio);
     }
 }
