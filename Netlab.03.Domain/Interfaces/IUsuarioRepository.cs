@@ -16,5 +16,9 @@ namespace Netlab.Domain.Interfaces
         Task<int> ExisteLogin(string login);
         Task<string> RegistrarUsuario(User usurio);
         Task EditarUsuario(User usurio);
+        Task<User> ObtenerUsuario(int IdUsuario);
+        Task<List<Rol>> ObtenerRolesUsuario(int IdUsuario);
+        Task<List<Examen>> ObtenerExamenesUsuario(int IdUsuario);
+        Task<List<Establecimiento>> ObtenerEstablecimientoUsuario(int IdUsuario);
     }
 }

@@ -1,10 +1,12 @@
 ﻿
 using Azure;
+using Microsoft.AspNetCore.WebUtilities;
 using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
 using Netlab.Helper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +19,7 @@ namespace Netlab.Business.Services
         Task<bool> ExisteLogin(string login);
         Task RegistrarUsuario(User usurio);
         Task EditarUsuario(User usurio);
+        Task<User> ObtenerPerfilUsuario(int IdUsuario);
     }
     public class UsuarioService : IUsuarioService
     {
@@ -52,6 +55,43 @@ namespace Netlab.Business.Services
             string asunto = "Datos de acceso - Netlab 2.0";
             string mensaje = "Estimado(a) usuario: " + usurio.NOMBRES + " " + usurio.APELLIDOPATERNO + " se renovó su cuenta de usuario.";
             await _emailService.EnviarCorreoAsync(asunto, mensaje);
+        }
+
+        public async Task<User> ObtenerPerfilUsuario(int IdUsuario)
+        {
+            var usuario = await _userRepo.ObtenerUsuario(IdUsuario);
+            var rol = await _userRepo.ObtenerRolesUsuario(IdUsuario);
+            var examen = await _userRepo.ObtenerExamenesUsuario(IdUsuario);
+            var establecimiento = await _userRepo.ObtenerEstablecimientoUsuario(IdUsuario);
+            usuario.PERFILUSUARIO = new List<Perfil>();
+
+            for (int i = 0; i < establecimiento.Count; i++)
+            {
+                var perfil = new Perfil
+                {
+                    idEstablecimiento = establecimiento[i].IdEstablecimiento,
+                    rol = new List<Rol>(),
+                    examen = new List<Examen>()
+                };
+                for (int r = 0; r < rol.Count; r++)
+                {
+                    perfil.rol.Add(new Rol
+                    {
+                        IdRol = rol[r].IdRol,
+                        Nombre = rol[r].Nombre
+                    });
+                }
+                for (int e = 0; e < examen.Count; e++)
+                {
+                    perfil.examen.Add(new Examen
+                    {
+                        IdExamen = examen[e].IdExamen,
+                        Nombre = examen[e].Nombre
+                    });
+                }
+                usuario.PERFILUSUARIO.Add(perfil);
+            }
+            return usuario;        
         }
     }
 }

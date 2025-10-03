@@ -90,40 +90,40 @@ public class UsuarioRepository : IUsuarioRepository
         return response.IDUSUARIO;
     }
 
-    public async Task<string> RegistrarUsuario(User usurio)
-    {
-        using var db = _databaseFactory.GetDatabase();
-        string sql = "EXEC pNLI_Usuario @0, @1, @2, @3, @4, @5, @6, @7, @8, @9, ";
-        sql += "@10, @11, @12, @13, @14, @15, @16, @17, @18, @19";
+    //public async Task<string> RegistrarUsuario(User usurio)
+    //{
+    //    using var db = _databaseFactory.GetDatabase();
+    //    string sql = "EXEC pNLI_Usuario @0, @1, @2, @3, @4, @5, @6, @7, @8, @9, ";
+    //    sql += "@10, @11, @12, @13, @14, @15, @16, @17, @18, @19";
 
-        var response = await db.ExecuteScalarAsync<string>
-            (
-                sql,
-                new object[] {
-                                    usurio.LOGIN,
-                                    usurio.DOCUMENTOIDENTIDAD,
-                                    usurio.APELLIDOPATERNO,
-                                    usurio.APELLIDOMATERNO,
-                                    usurio.NOMBRES,
-                                    usurio.CODIGOCOLEGIO,
-                                    usurio.RNE,
-                                    usurio.CARGO,
-                                    usurio.CORREO,
-                                    usurio.ESTATUS,
-                                    usurio.IDUSUARIOREGISTRO,
-                                    usurio.TELEFONOCONTACTO,
-                                    usurio.TIEMPOCADUCIDAD,
-                                    usurio.IDPROFESION,
-                                    usurio.IDTIPOUSUARIO,
-                                    usurio.IDCOMPONENTE,
-                                    usurio.IDTIPOACCESO,
-                                    usurio.IDNIVELAPROBACION,
-                                    usurio.FIRMADIGITAL,
-                                    usurio.CONTRASENIA
-                }
-            );
-        return response;
-    }
+    //    var response = await db.ExecuteScalarAsync<string>
+    //        (
+    //            sql,
+    //            new object[] {
+    //                                usurio.LOGIN,
+    //                                usurio.DOCUMENTOIDENTIDAD,
+    //                                usurio.APELLIDOPATERNO,
+    //                                usurio.APELLIDOMATERNO,
+    //                                usurio.NOMBRES,
+    //                                usurio.CODIGOCOLEGIO,
+    //                                usurio.RNE,
+    //                                usurio.CARGO,
+    //                                usurio.CORREO,
+    //                                usurio.ESTATUS,
+    //                                usurio.IDUSUARIOREGISTRO,
+    //                                usurio.TELEFONOCONTACTO,
+    //                                usurio.TIEMPOCADUCIDAD,
+    //                                usurio.IDPROFESION,
+    //                                usurio.IDTIPOUSUARIO,
+    //                                usurio.IDCOMPONENTE,
+    //                                usurio.IDTIPOACCESO,
+    //                                usurio.IDNIVELAPROBACION,
+    //                                usurio.FIRMADIGITAL,
+    //                                usurio.CONTRASENIA
+    //            }
+    //        );
+    //    return response;
+    //}
 
     public async Task EditarUsuario(User usurio)
     {
@@ -157,5 +157,49 @@ public class UsuarioRepository : IUsuarioRepository
                                     usurio.CONTRASENIA
                 }
             );
+    }
+
+    public async Task<User> ObtenerUsuario(int IdUsuario)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.Query<User>()
+                        .Where(x => x.IDUSUARIO == IdUsuario).FirstOrDefaultAsync();
+    }
+
+    public async Task<List<Rol>> ObtenerRolesUsuario(int IdUsuario)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.FetchAsync<Rol>(@"
+                SELECT r.idRol, r.nombre 
+                FROM Rol r
+                INNER JOIN UsuarioRol ur ON ur.idRol = r.idRol
+                WHERE ur.idUsuario = @0 AND r.estado = 1", IdUsuario);
+    }
+
+    public async Task<List<Examen>> ObtenerExamenesUsuario(int IdUsuario)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.FetchAsync<Examen>(@"
+                SELECT ex.idExamen, ex.nombre 
+                FROM Examen ex
+                INNER JOIN UsuarioEnfermedadExamen uee ON ex.idExamen = uee.idExamen
+                WHERE uee.idUsuario = @0 and uee.estado = 1 AND ex.estado = 1", IdUsuario);
+    }
+
+    public async Task<List<Establecimiento>> ObtenerEstablecimientoUsuario(int IdUsuario)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.FetchAsync<Establecimiento>(@"
+                SELECT e.idEstablecimiento, e.nombre 
+                FROM Establecimiento e
+                INNER JOIN UsuarioEstablecimiento ue ON e.idEstablecimiento = ue.idEstablecimiento
+                WHERE ue.idUsuario = @0 and ue.estado = 1 AND e.estado = 1", IdUsuario);
+    }
+
+    public async Task<int> RegistrarUsuario(User usuario)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        await db.InsertAsync(usuario);
+        return usuario.IDUSUARIO;
     }
 }

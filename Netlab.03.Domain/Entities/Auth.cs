@@ -84,9 +84,3 @@ public class UsuarioLaboratorio : General
     public string NomInstitucion { get; set; }
     public int? IdInstitucion { get; set; }
 }
-
-public class Examen : General
-{
-    public string IdExamen { get; set; }
-    public string Nombre { get; set; }
-}

@@ -45,13 +45,27 @@ namespace Netlab.Domain.Entities
         public int MOTIVOINACTIVACION { get; set; }
         public string OTROMOTIVOINACTIVACION { get; set; }
         public int USUARIOINACTIVACION { get; set; }
+        public List<Perfil> PERFILUSUARIO {  get; set; }
     }
 
-    [TableName("AreaProcesamiento")]
-    [PrimaryKey("idAreaProcesamiento", AutoIncrement = true)]
-    public class AreaProcesamiento
+    public class Examen
     {
-        public int IdAreaProcesamiento { get; set; }
+        public Guid IdExamen { get; set; }
         public string Nombre { get; set; }
+    }
+
+    public class Perfil
+    {
+        public int idEstablecimiento { get; set; }
+        public List<Rol> rol {  get; set; }
+        public List<Examen> examen { get; set; }
+    }
+
+    public class UsuarioEnfermedadExamen : General
+    {
+        public int idUsuario { get; set; }
+        public int idUsuarioEnfermedadExamen { get; set; }
+        public int idEnfermedad { get; set; }
+        public Guid idExamen { get; set; }
     }
 }
