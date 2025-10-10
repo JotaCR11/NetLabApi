@@ -14,7 +14,7 @@ namespace Netlab.Domain.Interfaces
         Task<List<string>> ObtenerRolesAsync(int idUsuario);
         Task<List<User>> ObtenerUsuarios(User usuario);
         Task<int> ExisteLogin(string login);
-        Task<string> RegistrarUsuario(User usurio);
+        Task<int> RegistrarUsuario(User usurio);
         Task EditarUsuario(User usurio);
         Task<User> ObtenerUsuario(int IdUsuario);
         Task<List<Rol>> ObtenerRolesUsuario(int IdUsuario);

@@ -43,4 +43,18 @@ namespace Netlab.Domain.Entities
         public string Provincia { get; set; }
         public string Distrito { get; set; }
     }
+
+    public class EstablecimientoResponse
+    {
+        public int CODIGOINSTITUCION { get; set; }
+        public string NOMBREINSTITUCION { get; set; }
+        public string IDDISA { get; set; }
+        public string NOMBREDISA { get; set; }
+        public string IDRED {  get; set; }
+        public string NOMBRERED { get; set; }
+        public string IDMICRORED { get; set; }
+        public string NOMBREMICRORED { get; set; }
+        public int IDESTABLECIMIENTO { get; set; }
+        public string NOMBRE { get; set; }
+    }
 }

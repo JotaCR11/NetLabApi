@@ -17,7 +17,7 @@ namespace Netlab.Business.Services
     {
         Task<List<User>> ObtenerUsuarios(User usuario);
         Task<bool> ExisteLogin(string login);
-        Task RegistrarUsuario(User usurio);
+        //Task RegistrarUsuario(User usurio);
         Task EditarUsuario(User usurio);
         Task<User> ObtenerPerfilUsuario(int IdUsuario);
     }
@@ -40,15 +40,15 @@ namespace Netlab.Business.Services
             var response = await _userRepo.ExisteLogin(login);
             return (response > 0) ? true : false;
         }
-        public async Task RegistrarUsuario(User usurio)
-        {
-            var response = await _userRepo.RegistrarUsuario(usurio);
-            if (response.Length > 1)
-            {
-                string asunto = "Datos de acceso - Netlab 2.0";
-                await _emailService.EnviarCorreoAsync(asunto, response);
-            }
-        }
+        //public async Task RegistrarUsuario(User usurio)
+        //{
+        //    var response = await _userRepo.RegistrarUsuario(usurio);
+        //    if (response.Length > 1)
+        //    {
+        //        string asunto = "Datos de acceso - Netlab 2.0";
+        //        await _emailService.EnviarCorreoAsync(asunto, response);
+        //    }
+        //}
         public async Task EditarUsuario(User usurio)
         {
             await _userRepo.EditarUsuario(usurio);

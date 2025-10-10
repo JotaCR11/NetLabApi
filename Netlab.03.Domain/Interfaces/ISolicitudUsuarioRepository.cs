@@ -1,0 +1,15 @@
+﻿using Netlab.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Netlab.Domain.Interfaces
+{
+    public interface ISolicitudUsuarioRepository
+    {
+        Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
+        Task<List<Establecimiento>> ObtenerEstablecimientoPorNombre(string nombre);
+    }
+}
