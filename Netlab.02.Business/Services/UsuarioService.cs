@@ -69,7 +69,7 @@ namespace Netlab.Business.Services
             {
                 var perfil = new Perfil
                 {
-                    idEstablecimiento = establecimiento[i].IdEstablecimiento,
+                    idEstablecimiento = establecimiento[i].IDESTABLECIMIENTO,
                     rol = new List<Rol>(),
                     examen = new List<Examen>()
                 };

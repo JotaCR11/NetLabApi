@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Netlab.Business.Services;
 using Netlab.Domain.Entities;
@@ -22,10 +23,17 @@ namespace Netlab.WebApp.Controllers
             return Ok(response);
         }
 
-        [HttpGet("eessnorenipress")]
-        public async Task<IActionResult> ObtenerEstablecimientoPorNombre(string nombre)
+        [HttpGet("obtenerestablecimiento")]
+        public async Task<IActionResult> ObtenerEstablecimientoPorTexto(string request)
         {
-            var response = await _solicitudService.ObtenerEstablecimientoPorNombre(nombre);
+            var response = await _solicitudService.ObtenerEstablecimientoPorTexto(request);
+            return Ok(response);
+        }
+
+        [HttpGet("obtenerdatosusuario")]
+        public async Task<IActionResult> ObtenerPerfilUsuario(string documentoIdentidad)
+        {
+            var response = await _solicitudService.ObtenerPerfilUsuario(documentoIdentidad);
             return Ok(response);
         }
     }

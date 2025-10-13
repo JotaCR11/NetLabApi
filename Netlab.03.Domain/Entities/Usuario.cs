@@ -48,10 +48,13 @@ namespace Netlab.Domain.Entities
         public List<Perfil> PERFILUSUARIO {  get; set; }
     }
 
+    [TableName("Examen")]
+    [PrimaryKey("idExamen", AutoIncrement = true)]
     public class Examen
     {
         public Guid IdExamen { get; set; }
         public string Nombre { get; set; }
+        public int IDTIPO {  get; set; }
     }
 
     public class Perfil

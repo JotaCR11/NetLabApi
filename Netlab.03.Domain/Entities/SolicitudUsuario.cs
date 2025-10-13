@@ -71,4 +71,25 @@ namespace Netlab.Domain.Entities
         public int IDUSUARIOEDICION { get; set; }
         public DateTime FECHAEDICION { get; set; }
     }
+
+    public class PerfilUsuarioResponse
+    {
+        public User USUARIO {  get; set; }
+        public List<_Rol> ROL { get; set; }
+        public List<Examen> EXAMEN { get; set; }
+    }
+
+    [TableName("Rol")]
+    [PrimaryKey("idRol", AutoIncrement = true)]
+    public class _Rol
+    {
+        public int IDROL { get; set; }
+        public string NOMBRE { get; set; }
+        //public List<Examen> EXAMEN { get; set; }
+    }
+
+    public class SolicitudUsuarioPerfilResponse
+    {
+
+    }
 }

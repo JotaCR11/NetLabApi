@@ -11,7 +11,8 @@ namespace Netlab.Business.Services
     public interface ISolicitudUsuarioService
     {
         Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
-        Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorNombre(string nombre);
+        Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto);
+        Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
     }
 
     public class SolicitudUsuarioService : ISolicitudUsuarioService
@@ -32,14 +33,16 @@ namespace Netlab.Business.Services
                 CODIGOSOLICITUD = solicitud.CODIGOSOLICITUD
             };
         }
-        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorNombre(string nombre)
+        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto)
         {
-            var establecimiento = await _solicitudRepo.ObtenerEstablecimientoPorNombre(nombre);
-            return establecimiento.Select(e => new EstablecimientoResponse
-            {
-                IdEstablecimiento = e.IdEstablecimiento,
-                Nombre = e.Nombre
-            }).ToList();
+            var response = await _solicitudRepo.ObtenerEstablecimientoPorTexto(texto);
+            return response;
+        }
+
+        public async Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad)
+        {
+            var response = await _solicitudRepo.ObtenerPerfilUsuario(documentoIdentidad);
+            return response;
         }
     }
 }

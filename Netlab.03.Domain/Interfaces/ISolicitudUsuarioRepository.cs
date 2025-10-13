@@ -10,6 +10,7 @@ namespace Netlab.Domain.Interfaces
     public interface ISolicitudUsuarioRepository
     {
         Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
-        Task<List<Establecimiento>> ObtenerEstablecimientoPorNombre(string nombre);
+        Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto);
+        Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
     }
 }
