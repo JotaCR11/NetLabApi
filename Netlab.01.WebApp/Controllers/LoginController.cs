@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Netlab.Business.Services;
+using Netlab.Domain.DTOs;
+using Netlab.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -12,17 +15,25 @@ namespace Netlab.WebApp.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IConfiguration _config;
+        private readonly IUsuarioService _usuarioService;
 
-        public LoginController(IConfiguration config)
+        public LoginController(IConfiguration config, IUsuarioService usuarioService)
         {
             _config = config;
+            _usuarioService = usuarioService;
         }
 
-        [HttpPost]
-        public IActionResult Login([FromBody] LoginRequest login)
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest login)
         {
-            // Aquí harías tu consulta con NPoco para validar el usuario real
-            if (login.Username == "usuario1" && login.Password == "123456")
+            var _login = new AuthRequest()
+            {
+                Login = login.Username,
+                Password = login.Password
+            };
+            var response = await _usuarioService.ValidaLogin(_login);
+
+            if (response)
             {
                 var token = GenerateJwtToken(login.Username);
                 return Ok(new { token });

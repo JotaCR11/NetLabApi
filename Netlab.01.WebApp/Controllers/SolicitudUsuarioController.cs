@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Netlab.Business.Services;
@@ -8,6 +9,7 @@ namespace Netlab.WebApp.Controllers
 {
     [Route("api/solicitud")]
     [ApiController]
+    [Authorize]
     public class SolicitudUsuarioController : ControllerBase
     {
         private readonly ISolicitudUsuarioService _solicitudService;

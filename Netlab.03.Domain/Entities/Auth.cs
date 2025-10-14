@@ -84,3 +84,9 @@ public class UsuarioLaboratorio : General
     public string NomInstitucion { get; set; }
     public int? IdInstitucion { get; set; }
 }
+
+public class loginInput
+{
+    public string login { get; set; }
+    public byte[] password { get; set; }
+}

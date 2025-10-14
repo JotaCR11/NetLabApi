@@ -101,7 +101,7 @@ public class AuthService : IAuthService
         }
 
 
-        var roles = await _usuarioRepo.ObtenerRolesAsync(user.IdUsuario);
+        //var roles = await _usuarioRepo.ObtenerRolesAsync(user.IdUsuario);
         //var log = new LogAcceso
         //{
         //    IdUsuario = user.IdUsuario,
@@ -117,13 +117,13 @@ public class AuthService : IAuthService
 
         return new AuthResponse
         {
-            Token = GenerateJwtToken(user, roles),
-            NombreUsuario = $"{user.Nombres} {user.ApellidoPaterno} {user.ApellidoMaterno}".Trim(),
-            Roles = roles.ToArray()
+            Token = GenerateJwtToken(user),
+            NombreUsuario = $"{user.Nombres} {user.ApellidoPaterno} {user.ApellidoMaterno}".Trim()
+            
         };
     }
 
-    private string GenerateJwtToken(Usuario user, List<string> roles)
+    private string GenerateJwtToken(Usuario user)
     {
         var claims = new List<Claim>
     {

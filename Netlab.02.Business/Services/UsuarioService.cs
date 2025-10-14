@@ -1,6 +1,7 @@
 ﻿
 using Azure;
 using Microsoft.AspNetCore.WebUtilities;
+using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
 using Netlab.Helper;
@@ -20,6 +21,7 @@ namespace Netlab.Business.Services
         //Task RegistrarUsuario(User usurio);
         Task EditarUsuario(User usurio);
         Task<User> ObtenerPerfilUsuario(int IdUsuario);
+        Task<bool> ValidaLogin(AuthRequest login);
     }
     public class UsuarioService : IUsuarioService
     {
@@ -92,6 +94,24 @@ namespace Netlab.Business.Services
                 usuario.PERFILUSUARIO.Add(perfil);
             }
             return usuario;        
+        }
+
+        public async Task<bool> ValidaLogin(AuthRequest login)
+        {
+            var inputBytes = Encoding.UTF8.GetBytes(login.Password);
+            var hashBytes = System.Security.Cryptography.SHA256.HashData(inputBytes);
+            var _login = new loginInput()
+            {
+                login = login.Login,
+                password = hashBytes
+            };
+            var validalogin = false;
+            var response = await _userRepo.ValidaLogin(_login);
+            if (response != null)
+            {
+                validalogin = true;
+            }
+            return validalogin;
         }
     }
 }

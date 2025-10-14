@@ -4,6 +4,7 @@ using Netlab.Domain.Interfaces;
 using Netlab.Infrastructure.Database;
 using NPoco;
 using System.Net;
+using System.Text;
 
 namespace Netlab.Infrastructure.Repositories;
 
@@ -201,5 +202,14 @@ public class UsuarioRepository : IUsuarioRepository
         using var db = _databaseFactory.GetDatabase();
         await db.InsertAsync(usuario);
         return usuario.IDUSUARIO;
+    }
+
+    public async Task<User> ValidaLogin(loginInput login)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        var response = await db.Query<User>()
+                        .Where(x => x.LOGIN == login.login && x.CONTRASENIA == login.password).FirstOrDefaultAsync();
+        return response;
+
     }
 }

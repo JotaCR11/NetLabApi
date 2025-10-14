@@ -20,5 +20,6 @@ namespace Netlab.Domain.Interfaces
         Task<List<Rol>> ObtenerRolesUsuario(int IdUsuario);
         Task<List<Examen>> ObtenerExamenesUsuario(int IdUsuario);
         Task<List<Establecimiento>> ObtenerEstablecimientoUsuario(int IdUsuario);
+        Task<User> ValidaLogin(loginInput login);
     }
 }

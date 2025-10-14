@@ -17,7 +17,7 @@ namespace Netlab.Domain.DTOs
     {
         public string Token { get; set; }
         public string NombreUsuario { get; set; }
-        public string[] Roles { get; set; }
+        //public string[] Roles { get; set; }
         // agregar mas propiedades del usuario/rol si es necesario a futuro.
     }
 }
