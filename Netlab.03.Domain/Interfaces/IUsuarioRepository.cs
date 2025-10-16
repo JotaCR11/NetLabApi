@@ -11,15 +11,23 @@ namespace Netlab.Domain.Interfaces
     public interface IUsuarioRepository
     {
         Task<Usuario?> GetByLoginAsync(AuthRequest request);
-        Task<List<string>> ObtenerRolesAsync(int idUsuario);
-        Task<List<User>> ObtenerUsuarios(User usuario);
-        Task<int> ExisteLogin(string login);
-        Task<int> RegistrarUsuario(User usurio);
-        Task EditarUsuario(User usurio);
-        Task<User> ObtenerUsuario(int IdUsuario);
+        Task<List<EstablecimientoPerfil>> ObtenerEstablecimientoUsuario(int IdUsuario);
         Task<List<Rol>> ObtenerRolesUsuario(int IdUsuario);
         Task<List<Examen>> ObtenerExamenesUsuario(int IdUsuario);
-        Task<List<Establecimiento>> ObtenerEstablecimientoUsuario(int IdUsuario);
-        Task<User> ValidaLogin(loginInput login);
+        Task<List<Menu>> ObtenerMenusUsuario(int IdUsuario);
+
+
+
+
+
+        //Task<List<string>> ObtenerRolesAsync(int idUsuario);
+        //Task<List<User>> ObtenerUsuarios(User usuario);
+        //Task<int> ExisteLogin(string login);
+        //Task<int> RegistrarUsuario(User usurio);
+        //Task EditarUsuario(User usurio);
+        //Task<User> ObtenerUsuario(int IdUsuario);
+
+
+
     }
 }

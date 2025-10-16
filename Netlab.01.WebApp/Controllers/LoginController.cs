@@ -23,7 +23,7 @@ namespace Netlab.WebApp.Controllers
             _usuarioService = usuarioService;
         }
 
-        [HttpPost("login")]
+        [HttpGet("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginRequest login)
         {
             var _login = new AuthRequest()
@@ -31,12 +31,13 @@ namespace Netlab.WebApp.Controllers
                 Login = login.Username,
                 Password = login.Password
             };
-            var response = await _usuarioService.ValidaLogin(_login);
+            var response = await _usuarioService.LoginUsuario(_login);
 
-            if (response)
+            if (response != null)
             {
-                var token = GenerateJwtToken(login.Username);
-                return Ok(new { token });
+                response.TOKEN = GenerateJwtToken(login.Username);
+                
+                return Ok(new { response });
             }
 
             return Unauthorized();

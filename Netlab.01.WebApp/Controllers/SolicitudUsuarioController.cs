@@ -18,6 +18,13 @@ namespace Netlab.WebApp.Controllers
             _solicitudService = solicitudService;        
         }
 
+        [HttpGet("obtenerestablecimientoporcodigo")]
+        public async Task<IActionResult> ObtenerEstablecimientoPorCodigoUnico(string request)
+        {
+            var response = await _solicitudService.ObtenerEstablecimientoPorCodigoUnico(request);
+            return Ok(response);
+        }
+
         [HttpPost("registrarsolicitud")]
         public async Task<IActionResult> RegistrarSolicitudUsuario([FromBody] SolicitudUsuario request)
         {

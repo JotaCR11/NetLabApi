@@ -81,6 +81,7 @@ namespace Netlab.Domain.Entities
         public string IDMICRORED { get; set; }
         public string NOMBREMICRORED { get; set; }
         public int IDESTABLECIMIENTO { get; set; }
+        public string CODIGOUNICO { get; set; }
         public string NOMBRE { get; set; }
     }
 

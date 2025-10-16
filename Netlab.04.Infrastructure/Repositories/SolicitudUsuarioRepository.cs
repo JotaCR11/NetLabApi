@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -23,6 +24,42 @@ namespace Netlab.Infrastructure.Repositories
         {
             _databaseFactory = databaseFactory;
         }
+        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return await db.FetchAsync<EstablecimientoResponse>(
+                "EXEC pNLS_SolicitudUsuarioEstablecimientoTexto @0",
+                texto);
+        }
+        public async Task<int> RegistrarEstablecimiento(EstablecimientoCSV establecimientocsv)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            int IdEstablecimiento = await db.ExecuteScalarAsync<int>
+                (
+                "EXEC pNLI_SolicitudUsuarioEstablecimiento @0,@1,@2,@3,@4,@5,@6,@7,@8" +
+                                                           "@9,@10,@11,@12,@13,@14",
+                new object[] 
+                    {
+                        establecimientocsv.INSTITUCION,
+                        establecimientocsv.COD_IPRESS,
+                        establecimientocsv.NOMBRE,
+                        establecimientocsv.CLASIFICACION,
+                        establecimientocsv.DEPARTAMENTO,
+                        establecimientocsv.PROVINCIA,
+                        establecimientocsv.DISTRITO,
+                        establecimientocsv.UBIGEO,
+                        establecimientocsv.DIRECCION,
+                        establecimientocsv.DISA,
+                        establecimientocsv.RED,
+                        establecimientocsv.MICRORED,
+                        establecimientocsv.CATEGORIA,
+                        establecimientocsv.NORTE,
+                        establecimientocsv.ESTE
+                    }
+                );
+            return IdEstablecimiento;
+        }
+
         public async Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
         {
             using var db = _databaseFactory.GetDatabase();
@@ -32,15 +69,7 @@ namespace Netlab.Infrastructure.Repositories
                     JsonSerializer.Serialize(solicitudUsuario)
                 );
         }
-
-        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto)
-        {
-            using var db = _databaseFactory.GetDatabase();
-            return await db.FetchAsync<EstablecimientoResponse>(
-                "EXEC pNLS_SolicitudUsuarioEstablecimientoTexto @0",
-                texto);
-        }
-
+        
         public async Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad)
         {
             using var db = _databaseFactory.GetDatabase();

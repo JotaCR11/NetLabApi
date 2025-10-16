@@ -88,8 +88,40 @@ namespace Netlab.Domain.Entities
         //public List<Examen> EXAMEN { get; set; }
     }
 
-    public class SolicitudUsuarioPerfilResponse
+    public class EstablecimientoCSV
     {
-
+        public string INSTITUCION { get; set; }
+        public string COD_IPRESS { get; set; }
+        public string NOMBRE { get; set; }
+        public string CLASIFICACION { get; set; }
+        public string TIPO_ESTABLECIMIENTO { get; set; }
+        public string DEPARTAMENTO { get; set; }
+        public string PROVINCIA { get; set; }
+        public string DISTRITO { get; set; }
+        public string UBIGEO { get; set; }
+        public string DIRECCION { get; set; }
+        public string CO_DISA { get; set; }
+        public string COD_RED { get; set; }
+        public string COD_MICRORRED { get; set; }
+        public string DISA { get; set; }
+        public string RED { get; set; }
+        public string MICRORED { get; set; }
+        public string COD_UE { get; set; }
+        public string UNIDAD_EJECUTORA { get; set; }
+        public string CATEGORIA { get; set; }
+        public string TELEFONO { get; set; }
+        public string HORARIO { get; set; }
+        public string INICIO_ACTIVIDAD { get; set; }
+        public string ESTADO { get; set; }
+        public string SITUACION { get; set; }
+        public string CONDICION { get; set; }
+        public string NORTE { get; set; }
+        public string ESTE { get; set; }
+        public string IMAGEN_1 { get; set; }
+        public string FE_ACT_IMAGEN_1 { get; set; }
+        public string IMAGEN_2 { get; set; }
+        public string FE_ACT_IMAGEN_2 { get; set; }
+        public string IMAGEN_3 { get; set; }
+        public string FE_ACT_IMAGEN_3 { get; set; }
     }
 }

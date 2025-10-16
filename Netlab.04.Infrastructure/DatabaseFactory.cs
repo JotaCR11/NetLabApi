@@ -16,7 +16,7 @@ namespace Netlab.Infrastructure.Database
         private readonly string _connectionString;
         public DatabaseFactory(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnectionProd");
+            _connectionString = configuration.GetConnectionString("DefaultConnectionVPNLocal");
         }
 
         public IDatabase GetDatabase()

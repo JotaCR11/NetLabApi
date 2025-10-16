@@ -9,39 +9,110 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Netlab.Business.Services
 {
     public interface IUsuarioService
     {
-        Task<List<User>> ObtenerUsuarios(User usuario);
-        Task<bool> ExisteLogin(string login);
-        //Task RegistrarUsuario(User usurio);
-        Task EditarUsuario(User usurio);
-        Task<User> ObtenerPerfilUsuario(int IdUsuario);
-        Task<bool> ValidaLogin(AuthRequest login);
+        Task<LoginResponse> LoginUsuario(AuthRequest login);
+        //Task<List<User>> ObtenerUsuarios(User usuario);
+        //Task<bool> ExisteLogin(string login);
+        ////Task RegistrarUsuario(User usurio);
+        //Task EditarUsuario(User usurio);
+        //Task<User> ObtenerPerfilUsuario(int IdUsuario);
+        
     }
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository _userRepo;
-        private readonly EmailService _emailService;
+        //private readonly EmailService _emailService;
+        //private readonly AuthService _authService;
 
         public UsuarioService(IUsuarioRepository userRepo)
         {
             _userRepo = userRepo;
         }
 
-        public async Task<List<User>> ObtenerUsuarios(User usuario)
+        public async Task<LoginResponse> LoginUsuario(AuthRequest login)
         {
-            return await _userRepo.ObtenerUsuarios(usuario);
+            var usuario = await _userRepo.GetByLoginAsync(login);
+            var roles = new List<Rol>();
+            var examenes = new List<Examen>();
+            var establecimientos = new List<EstablecimientoPerfil>();
+            var token = string.Empty;
+
+            if (usuario != null)
+            {
+                establecimientos = await _userRepo.ObtenerEstablecimientoUsuario(usuario.IdUsuario);
+
+                foreach (var item in establecimientos)
+                {
+                    item.ROLES = new List<Rol>();
+                    item.ROLES = await _userRepo.ObtenerRolesUsuario(usuario.IdUsuario);
+                    item.EXAMENES = new List<Examen>();
+                    item.EXAMENES = await _userRepo.ObtenerExamenesUsuario(usuario.IdUsuario);
+                    var menuList = new List<Menu>();
+                    menuList = await _userRepo.ObtenerMenusUsuario(usuario.IdUsuario);
+                    item.MENUS = new List<Menu>();
+                    item.MENUS = ConstruirJerarquia(menuList);
+                }
+            }
+            return new LoginResponse
+            {
+                TOKEN = token,
+                USUARIO = usuario,
+                ESTABLECIMIENTOS = establecimientos
+            };
         }
-        public async Task<bool> ExisteLogin(string login)
+
+        public static List<Menu> ConstruirJerarquia(List<Menu> menus)
         {
-            var response = await _userRepo.ExisteLogin(login);
-            return (response > 0) ? true : false;
+            // Clonar todos los elementos para evitar referencias compartidas
+            var todos = menus
+                .Select(m => new Menu
+                {
+                    IdMenu = m.IdMenu,
+                    Nombre = m.Nombre,
+                    IdMenuPadre = m.IdMenuPadre,
+                    Hijos = new List<Menu>()
+                })
+                .ToList();
+
+            // Crear un diccionario para rápido acceso por id
+            var mapa = todos.ToDictionary(x => x.IdMenu);
+
+            // Lista de raíces (padres con idMenuPadre = "0")
+            var raices = new List<Menu>();
+
+            foreach (var menu in todos)
+            {
+                if (menu.IdMenuPadre == 0 || !mapa.ContainsKey(menu.IdMenuPadre))
+                {
+                    raices.Add(menu);
+                }
+                else
+                {
+                    // Agregar este menú como hijo del padre correspondiente
+                    mapa[menu.IdMenuPadre].Hijos.Add(menu);
+                }
+            }
+            return raices;
         }
+
+
+        //public async Task<List<User>> ObtenerUsuarios(User usuario)
+        //{
+        //    return await _userRepo.ObtenerUsuarios(usuario);
+        //}
+        //public async Task<bool> ExisteLogin(string login)
+        //{
+        //    var response = await _userRepo.ExisteLogin(login);
+        //    return (response > 0) ? true : false;
+        //}
         //public async Task RegistrarUsuario(User usurio)
         //{
         //    var response = await _userRepo.RegistrarUsuario(usurio);
@@ -51,67 +122,51 @@ namespace Netlab.Business.Services
         //        await _emailService.EnviarCorreoAsync(asunto, response);
         //    }
         //}
-        public async Task EditarUsuario(User usurio)
-        {
-            await _userRepo.EditarUsuario(usurio);
-            string asunto = "Datos de acceso - Netlab 2.0";
-            string mensaje = "Estimado(a) usuario: " + usurio.NOMBRES + " " + usurio.APELLIDOPATERNO + " se renovó su cuenta de usuario.";
-            await _emailService.EnviarCorreoAsync(asunto, mensaje);
-        }
+        //public async Task EditarUsuario(User usurio)
+        //{
+        //    await _userRepo.EditarUsuario(usurio);
+        //    string asunto = "Datos de acceso - Netlab 2.0";
+        //    string mensaje = "Estimado(a) usuario: " + usurio.NOMBRES + " " + usurio.APELLIDOPATERNO + " se renovó su cuenta de usuario.";
+        //    await _emailService.EnviarCorreoAsync(asunto, mensaje);
+        //}
 
-        public async Task<User> ObtenerPerfilUsuario(int IdUsuario)
-        {
-            var usuario = await _userRepo.ObtenerUsuario(IdUsuario);
-            var rol = await _userRepo.ObtenerRolesUsuario(IdUsuario);
-            var examen = await _userRepo.ObtenerExamenesUsuario(IdUsuario);
-            var establecimiento = await _userRepo.ObtenerEstablecimientoUsuario(IdUsuario);
-            usuario.PERFILUSUARIO = new List<Perfil>();
+        //public async Task<User> ObtenerPerfilUsuario(int IdUsuario)
+        //{
+        //    var usuario = await _userRepo.ObtenerUsuario(IdUsuario);
+        //    var rol = await _userRepo.ObtenerRolesUsuario(IdUsuario);
+        //    var examen = await _userRepo.ObtenerExamenesUsuario(IdUsuario);
+        //    var establecimiento = await _userRepo.ObtenerEstablecimientoUsuario(IdUsuario);
+        //    usuario.PERFILUSUARIO = new List<Perfil>();
 
-            for (int i = 0; i < establecimiento.Count; i++)
-            {
-                var perfil = new Perfil
-                {
-                    idEstablecimiento = establecimiento[i].IDESTABLECIMIENTO,
-                    rol = new List<Rol>(),
-                    examen = new List<Examen>()
-                };
-                for (int r = 0; r < rol.Count; r++)
-                {
-                    perfil.rol.Add(new Rol
-                    {
-                        IdRol = rol[r].IdRol,
-                        Nombre = rol[r].Nombre
-                    });
-                }
-                for (int e = 0; e < examen.Count; e++)
-                {
-                    perfil.examen.Add(new Examen
-                    {
-                        IdExamen = examen[e].IdExamen,
-                        Nombre = examen[e].Nombre
-                    });
-                }
-                usuario.PERFILUSUARIO.Add(perfil);
-            }
-            return usuario;        
-        }
+        //    for (int i = 0; i < establecimiento.Count; i++)
+        //    {
+        //        var perfil = new Perfil
+        //        {
+        //            idEstablecimiento = establecimiento[i].IDESTABLECIMIENTO,
+        //            rol = new List<Rol>(),
+        //            examen = new List<Examen>()
+        //        };
+        //        for (int r = 0; r < rol.Count; r++)
+        //        {
+        //            perfil.rol.Add(new Rol
+        //            {
+        //                IdRol = rol[r].IdRol,
+        //                Nombre = rol[r].Nombre
+        //            });
+        //        }
+        //        for (int e = 0; e < examen.Count; e++)
+        //        {
+        //            perfil.examen.Add(new Examen
+        //            {
+        //                IdExamen = examen[e].IdExamen,
+        //                Nombre = examen[e].Nombre
+        //            });
+        //        }
+        //        usuario.PERFILUSUARIO.Add(perfil);
+        //    }
+        //    return usuario;        
+        //}
 
-        public async Task<bool> ValidaLogin(AuthRequest login)
-        {
-            var inputBytes = Encoding.UTF8.GetBytes(login.Password);
-            var hashBytes = System.Security.Cryptography.SHA256.HashData(inputBytes);
-            var _login = new loginInput()
-            {
-                login = login.Login,
-                password = hashBytes
-            };
-            var validalogin = false;
-            var response = await _userRepo.ValidaLogin(_login);
-            if (response != null)
-            {
-                validalogin = true;
-            }
-            return validalogin;
-        }
+
     }
 }

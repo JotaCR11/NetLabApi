@@ -18,37 +18,37 @@ namespace Netlab.WebApp.Controllers
             _userService = userService;
         }
 
-        [HttpGet("obtenerusuario")]
-        public async Task<IActionResult> ObtenerUsuario([FromBody] User request)
-        {
-            var response = await _userService.ObtenerUsuarios(request);
-            return Ok(response);
-        }
+        //[HttpGet("obtenerusuario")]
+        //public async Task<IActionResult> ObtenerUsuario([FromBody] User request)
+        //{
+        //    var response = await _userService.ObtenerUsuarios(request);
+        //    return Ok(response);
+        //}
+
+        ////[HttpPost("registrarusuario")]
+        ////public async Task RegistrarUsuario([FromBody] User request)
+        ////{
+        ////    await _userService.RegistrarUsuario(request);
+        ////}
+
+        //[HttpPost("editarusuario")]
+        //public async Task EditarUsuario([FromBody] User request)
+        //{
+        //    await _userService.EditarUsuario(request);
+        //}
+
+        //[HttpGet("buscarusuarioid")]
+        //public async Task<IActionResult> ObtenerUsuario(int IdUsuario)
+        //{
+        //    var response = await _userService.ObtenerPerfilUsuario(IdUsuario);
+        //    return Ok(response);
+        //}
 
         //[HttpPost("registrarusuario")]
         //public async Task RegistrarUsuario([FromBody] User request)
         //{
-        //    await _userService.RegistrarUsuario(request);
+
         //}
-
-        [HttpPost("editarusuario")]
-        public async Task EditarUsuario([FromBody] User request)
-        {
-            await _userService.EditarUsuario(request);
-        }
-
-        [HttpGet("buscarusuarioid")]
-        public async Task<IActionResult> ObtenerUsuario(int IdUsuario)
-        {
-            var response = await _userService.ObtenerPerfilUsuario(IdUsuario);
-            return Ok(response);
-        }
-
-        [HttpPost("registrarusuario")]
-        public async Task RegistrarUsuario([FromBody] User request)
-        {
-
-        }
 
     }
 }

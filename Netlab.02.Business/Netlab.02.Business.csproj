@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Netlab.03.Domain\Netlab.03.Domain.csproj" />
     <ProjectReference Include="..\Netlab.04.Infrastructure\Netlab.04.Infrastructure.csproj" />
     <ProjectReference Include="..\Netlab.05.Helper\Netlab.05.Helper.csproj" />

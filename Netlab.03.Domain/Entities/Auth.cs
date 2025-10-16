@@ -14,7 +14,16 @@ public class Usuario : General
     public DateTime fechaIngreso { get; set; }
     public DateTime fechaUltimoAcceso { get; set; }
     public DateTime fechaCaducidad { get; set; }
-    public List<Rol> Roles { get; set; } = new();
+    public List<EstablecimientoPerfil> ESTABLECIMIENTOS { get; set; } = new();
+}
+
+public class EstablecimientoPerfil
+{
+    public int IDESTABLECIMIENTO { get; set; }
+    public string NOMBRE { get; set; }
+    public List<Rol> ROLES { get; set; }
+    public List<Examen> EXAMENES { get; set; } = new();
+    public List<Menu> MENUS { get; set; } = new();
 }
 
 public class Rol : General
@@ -83,10 +92,4 @@ public class UsuarioLaboratorio : General
     public string NomLaboratorio { get; set; }
     public string NomInstitucion { get; set; }
     public int? IdInstitucion { get; set; }
-}
-
-public class loginInput
-{
-    public string login { get; set; }
-    public byte[] password { get; set; }
 }
