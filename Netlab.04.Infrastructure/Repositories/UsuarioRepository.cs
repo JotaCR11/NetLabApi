@@ -68,6 +68,13 @@ public class UsuarioRepository : IUsuarioRepository
         );
     }
 
+    public async Task<List<User>> ObtenerUsuarioPorDocumentoIdentidad(string documentoIdentidad)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.QueryAsync<User>()
+            .Where(x => x.DOCUMENTOIDENTIDAD.Equals(documentoIdentidad)).ToList();
+    }
+
 
 
 

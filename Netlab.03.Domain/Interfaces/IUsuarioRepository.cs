@@ -15,6 +15,7 @@ namespace Netlab.Domain.Interfaces
         Task<List<Rol>> ObtenerRolesUsuario(int IdUsuario);
         Task<List<Examen>> ObtenerExamenesUsuario(int IdUsuario);
         Task<List<Menu>> ObtenerMenusUsuario(int IdUsuario);
+        Task<List<User>> ObtenerUsuarioPorDocumentoIdentidad(string documentoIdentidad);
 
 
 

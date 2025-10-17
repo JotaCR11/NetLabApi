@@ -18,15 +18,23 @@ namespace Netlab.Business.Services
         Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorCodigoUnico(string codigoUnico);
         EstablecimientoCSV LeerCsv(string codigoUnico);
         Task<int> RegistrarEstablecimiento(EstablecimientoCSV establecimientocsv);
+        Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
+
+
+
+
         Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
         Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto);
-        Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
+        
         
     }
 
     public class SolicitudUsuarioService : ISolicitudUsuarioService
     {
         private readonly ISolicitudUsuarioRepository _solicitudRepo;
+        private readonly IUsuarioRepository _userRepo;
+        private readonly ReniecService _reniec;
+
         public SolicitudUsuarioService(ISolicitudUsuarioRepository solicitudRepo)
         {
             _solicitudRepo = solicitudRepo;
@@ -35,12 +43,13 @@ namespace Netlab.Business.Services
         public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorCodigoUnico(string codigoUnico)
         {
             var response = await _solicitudRepo.ObtenerEstablecimientoPorTexto(codigoUnico);
-            if (response == null)
+            if (response.Count == 0)
             {
                 string _codigo = codigoUnico.TrimStart('0');
                 var responseCsv = LeerCsv(_codigo);
                 if (responseCsv != null)
                 {
+                    responseCsv.COD_IPRESS = codigoUnico;
                     int IdEstablecimiento = await _solicitudRepo.RegistrarEstablecimiento(responseCsv);
                     if (IdEstablecimiento > 0)
                     {
@@ -84,7 +93,7 @@ namespace Netlab.Business.Services
             // Buscar coincidencias por el código único
             var encontrados = registros
                 .Where(x => x.COD_IPRESS.Equals(codigoUnico))
-                .ToList();
+                .FirstOrDefault();
 
             return encontrados;
         }
@@ -94,16 +103,6 @@ namespace Netlab.Business.Services
             return await _solicitudRepo.RegistrarEstablecimiento(establecimientocsv);
         }
 
-        public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
-        {
-            var solicitud = await _solicitudRepo.RegistrarSolicitudUsuario(solicitudUsuario);
-            
-            return new SolicitudUsuarioResponse
-            {
-                RESPONSEID = solicitud.IDSOLICITUDUSUARIO,
-                CODIGOSOLICITUD = solicitud.CODIGOSOLICITUD
-            };
-        }
         public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto)
         {
             var response = await _solicitudRepo.ObtenerEstablecimientoPorTexto(texto);
@@ -112,8 +111,36 @@ namespace Netlab.Business.Services
 
         public async Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad)
         {
-            var response = await _solicitudRepo.ObtenerPerfilUsuario(documentoIdentidad);
-            return response;
+            var usuario = await _userRepo.ObtenerUsuarioPorDocumentoIdentidad(documentoIdentidad);
+            var _usuario = usuario.OrderByDescending(x=>x.FECHAREGISTRO).FirstOrDefault();
+            var roles = new List<Rol>();
+            var examenes = new List<Examen>(); 
+            if (usuario != null)
+            {
+                roles = await _userRepo.ObtenerRolesUsuario(_usuario.IDUSUARIO);
+                examenes = await _userRepo.ObtenerExamenesUsuario(_usuario.IDUSUARIO);
+            }
+            else
+            {
+                var persona = await _reniec.ObtenerDatosReniecAsync(documentoIdentidad);
+            }   
+            return new PerfilUsuarioResponse
+                {
+                    USUARIO = _usuario,
+                    ROL = roles,
+                    EXAMEN = examenes
+                };
+        }
+
+        public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
+        {
+            var solicitud = await _solicitudRepo.RegistrarSolicitudUsuario(solicitudUsuario);
+
+            return new SolicitudUsuarioResponse
+            {
+                RESPONSEID = solicitud.IDSOLICITUDUSUARIO,
+                CODIGOSOLICITUD = solicitud.CODIGOSOLICITUD
+            };
         }
     }
 }

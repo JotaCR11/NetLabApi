@@ -23,14 +23,7 @@ namespace Netlab.WebApp.Controllers
         {
             var response = await _solicitudService.ObtenerEstablecimientoPorCodigoUnico(request);
             return Ok(response);
-        }
-
-        [HttpPost("registrarsolicitud")]
-        public async Task<IActionResult> RegistrarSolicitudUsuario([FromBody] SolicitudUsuario request)
-        {
-            var response = await _solicitudService.RegistrarSolicitudUsuario(request);
-            return Ok(response);
-        }
+        }       
 
         [HttpGet("obtenerestablecimiento")]
         public async Task<IActionResult> ObtenerEstablecimientoPorTexto(string request)
@@ -43,6 +36,13 @@ namespace Netlab.WebApp.Controllers
         public async Task<IActionResult> ObtenerPerfilUsuario(string documentoIdentidad)
         {
             var response = await _solicitudService.ObtenerPerfilUsuario(documentoIdentidad);
+            return Ok(response);
+        }
+
+        [HttpPost("registrarsolicitud")]
+        public async Task<IActionResult> RegistrarSolicitudUsuario([FromBody] SolicitudUsuario request)
+        {
+            var response = await _solicitudService.RegistrarSolicitudUsuario(request);
             return Ok(response);
         }
     }

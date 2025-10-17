@@ -36,7 +36,7 @@ namespace Netlab.Infrastructure.Repositories
             using var db = _databaseFactory.GetDatabase();
             int IdEstablecimiento = await db.ExecuteScalarAsync<int>
                 (
-                "EXEC pNLI_SolicitudUsuarioEstablecimiento @0,@1,@2,@3,@4,@5,@6,@7,@8" +
+                "EXEC pNLI_SolicitudUsuarioEstablecimiento @0,@1,@2,@3,@4,@5,@6,@7,@8," +
                                                            "@9,@10,@11,@12,@13,@14",
                 new object[] 
                     {
