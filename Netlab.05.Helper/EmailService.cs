@@ -11,7 +11,7 @@ namespace Netlab.Helper
 {
     public interface IEmailService
     {
-        Task EnviarCorreoAsync(string asunto, string mensaje);
+        Task EnviarCorreoAsync(string asunto, string mensaje, string correoDestino);
     }
 
     public class EmailService : IEmailService
@@ -23,19 +23,19 @@ namespace Netlab.Helper
             _configuration = configuration;
         }
 
-        public async Task EnviarCorreoAsync(string asunto, string mensaje)
+        public async Task EnviarCorreoAsync(string asunto, string mensaje, string correoDestino)
         {
             var smtp = _configuration["Smtp:Host"];
             var puerto = int.Parse(_configuration["Smtp:Port"]);
             var correoRemitente = _configuration["Smtp:From"];
             var clave = _configuration["Smtp:Password"];
-            var correoDestino = _configuration["Smtp:To"];
+            //var correoDestino = _configuration["Smtp:To"];
 
             var client = new SmtpClient(smtp, puerto)
             {
+                UseDefaultCredentials = false,
                 Credentials = new NetworkCredential(correoRemitente, clave),
-                EnableSsl = true,
-                UseDefaultCredentials = false
+                EnableSsl = true // Para Gmail con puerto 587 o 465
             };
 
             var mailMessage = new MailMessage
@@ -45,8 +45,6 @@ namespace Netlab.Helper
                 Body = mensaje,
                 IsBodyHtml = false
             };
-
-            mailMessage.To.Add("josechavezrodriguez@gmail.com");
             foreach (var email in correoDestino.Split(','))
             {
                 mailMessage.Bcc.Add(email.Trim());

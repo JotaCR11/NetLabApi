@@ -9,10 +9,11 @@ namespace Netlab.WebApp.Controllers
 {
     [Route("api/solicitud")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class SolicitudUsuarioController : ControllerBase
     {
         private readonly ISolicitudUsuarioService _solicitudService;
+
         public SolicitudUsuarioController(ISolicitudUsuarioService solicitudService)
         {
             _solicitudService = solicitudService;        
@@ -37,6 +38,12 @@ namespace Netlab.WebApp.Controllers
         {
             var response = await _solicitudService.ObtenerPerfilUsuario(documentoIdentidad);
             return Ok(response);
+        }
+
+        [HttpPost("validacorreo")]
+        public async Task EnviarCodigo(string documentoIdentidad, string email)
+        {
+            await _solicitudService.EnviarCodigoAsync(documentoIdentidad, email);
         }
 
         [HttpPost("registrarsolicitud")]

@@ -124,4 +124,16 @@ namespace Netlab.Domain.Entities
         public string IMAGEN_3 { get; set; }
         public string FE_ACT_IMAGEN_3 { get; set; }
     }
+
+    public class SolicitudUsuarioCorreoValidacion
+    {
+        public int Id { get; set; }
+        public string DocumentoIdentidad { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Codigo { get; set; } = string.Empty;
+        public DateTime FechaGeneracion { get; set; }
+        public DateTime FechaExpiracion { get; set; }
+        public bool Usado { get; set; }
+        public DateTime? FechaUso { get; set; }
+    }
 }

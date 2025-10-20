@@ -57,7 +57,7 @@ namespace Netlab.WebApp.Middleware
                 await RegistrarLogAccesoAsync(context, logRepo, false, mensaje, ex.StackTrace);
 
                 // Enviar correo de alerta
-                await emailService.EnviarCorreoAsync("Prueba de envío Exception", mensaje);
+                //await emailService.EnviarCorreoAsync("Prueba de envío Exception", mensaje,"");
 
                 // Re-lanzar la excepción para que el sistema la capture si es necesario
                 throw;

@@ -77,5 +77,29 @@ namespace Netlab.Infrastructure.Repositories
                 "EXEC pNLS_SolicitudUsuarioGetDatosUsuario @0",
                 documentoIdentidad);
         }
+
+        public async Task RegistraCodigoValidacionCorreo(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            await db.InsertAsync(solicitudUsuarioCorreoValidacion);
+        }
+
+        public async Task<SolicitudUsuarioCorreoValidacion?> ObtenerDatosValidacionCorreo(string documentoIdentidad,string email, string codigo)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return await db.QueryAsync<SolicitudUsuarioCorreoValidacion>()
+                .Where(x => x.DocumentoIdentidad.Equals(documentoIdentidad)
+                        && x.Email.Equals(email)
+                        && x.Codigo.Equals(codigo)
+                )
+                .OrderByDescending(p => p.FechaGeneracion)
+                .FirstOrDefault();
+        }
+
+        public async Task ActualizaDatoCodigoValidacion(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            await db.UpdateAsync(solicitudUsuarioCorreoValidacion);
+        }
     }
 }

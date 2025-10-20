@@ -13,5 +13,8 @@ namespace Netlab.Domain.Interfaces
         Task<int> RegistrarEstablecimiento(EstablecimientoCSV establecimientocsv);
         Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario); 
         Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
+        Task RegistraCodigoValidacionCorreo(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion);
+        Task<SolicitudUsuarioCorreoValidacion> ObtenerDatosValidacionCorreo(string documentoIdentidad, string email, string codigo);
+        Task ActualizaDatoCodigoValidacion(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion);
     }
 }

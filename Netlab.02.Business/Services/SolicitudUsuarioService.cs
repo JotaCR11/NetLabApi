@@ -1,13 +1,17 @@
-﻿using CsvHelper;
+﻿using Azure;
+using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
 using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
+using Netlab.Helper;
+using Netlab.Infrastructure.ServicioReniec;
 using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +23,8 @@ namespace Netlab.Business.Services
         EstablecimientoCSV LeerCsv(string codigoUnico);
         Task<int> RegistrarEstablecimiento(EstablecimientoCSV establecimientocsv);
         Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
-
+        Task EnviarCodigoAsync(string documentoIdentidad, string email);
+        Task ValidarCodigoAsync(string documentoIdentidad, string email, string codigo);
 
 
 
@@ -33,11 +38,16 @@ namespace Netlab.Business.Services
     {
         private readonly ISolicitudUsuarioRepository _solicitudRepo;
         private readonly IUsuarioRepository _userRepo;
-        private readonly ReniecService _reniec;
+        private readonly IReniecClient _reniecClient;
+        private readonly IEmailService _emailService;
 
-        public SolicitudUsuarioService(ISolicitudUsuarioRepository solicitudRepo)
+        public SolicitudUsuarioService(ISolicitudUsuarioRepository solicitudRepo, IUsuarioRepository userRepo, 
+                                        IReniecClient reniecClient, IEmailService emailService)
         {
             _solicitudRepo = solicitudRepo;
+            _reniecClient = reniecClient;
+            _userRepo = userRepo;
+            _emailService = emailService;
         }
 
         public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorCodigoUnico(string codigoUnico)
@@ -111,22 +121,31 @@ namespace Netlab.Business.Services
 
         public async Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad)
         {
-            var usuario = await _userRepo.ObtenerUsuarioPorDocumentoIdentidad(documentoIdentidad);
-            var _usuario = usuario.OrderByDescending(x=>x.FECHAREGISTRO).FirstOrDefault();
+            var listaUsuario = new List<User>();
+            var usuario = new User();
+            listaUsuario = await _userRepo.ObtenerUsuarioPorDocumentoIdentidad(documentoIdentidad);
             var roles = new List<Rol>();
-            var examenes = new List<Examen>(); 
-            if (usuario != null)
+            var examenes = new List<Examen>();
+            if (listaUsuario.Count() > 0)
             {
-                roles = await _userRepo.ObtenerRolesUsuario(_usuario.IDUSUARIO);
-                examenes = await _userRepo.ObtenerExamenesUsuario(_usuario.IDUSUARIO);
+                usuario = listaUsuario.OrderByDescending(x => x.FECHAREGISTRO).FirstOrDefault();
+                roles = await _userRepo.ObtenerRolesUsuario(usuario.IDUSUARIO);
+                examenes = await _userRepo.ObtenerExamenesUsuario(usuario.IDUSUARIO);
             }
             else
             {
-                var persona = await _reniec.ObtenerDatosReniecAsync(documentoIdentidad);
+                var persona = await _reniecClient.ObtenerDatosPorDniAsync(documentoIdentidad);
+                if (persona != null)
+                {
+                    usuario.DOCUMENTOIDENTIDAD = documentoIdentidad;
+                    usuario.APELLIDOPATERNO = persona.ApellidoPaterno;
+                    usuario.APELLIDOMATERNO = persona.ApellidoMaterno;
+                    usuario.NOMBRES = persona.Nombres;
+                }
             }   
             return new PerfilUsuarioResponse
                 {
-                    USUARIO = _usuario,
+                    USUARIO = usuario,
                     ROL = roles,
                     EXAMEN = examenes
                 };
@@ -141,6 +160,50 @@ namespace Netlab.Business.Services
                 RESPONSEID = solicitud.IDSOLICITUDUSUARIO,
                 CODIGOSOLICITUD = solicitud.CODIGOSOLICITUD
             };
+        }
+
+        public async Task EnviarCodigoAsync(string documentoIdentidad, string email)
+        {
+            var solicitudUsuarioCorreoValidacion = new SolicitudUsuarioCorreoValidacion()
+            {
+                DocumentoIdentidad = documentoIdentidad,
+                Email = email,
+                Codigo = new Random().Next(100000, 999999).ToString(),
+                FechaGeneracion = DateTime.Now,
+                FechaExpiracion = DateTime.Now.AddMinutes(10)
+            };
+            await _solicitudRepo.RegistraCodigoValidacionCorreo(solicitudUsuarioCorreoValidacion);
+
+            await _emailService.EnviarCorreoAsync("Codigo de verificacion", 
+                                                    solicitudUsuarioCorreoValidacion.Codigo, 
+                                                    solicitudUsuarioCorreoValidacion.Email);
+        }
+
+        public async Task ValidarCodigoAsync(string documentoIdentidad, string email, string codigo)
+        {
+            var response = await _solicitudRepo.ObtenerDatosValidacionCorreo(documentoIdentidad, email, codigo);
+            if (response != null)
+            {
+                if (response.FechaExpiracion > DateTime.Now)
+                {
+                    var solicitudUsuarioCorreoValidacion = new SolicitudUsuarioCorreoValidacion()
+                    {
+                        DocumentoIdentidad = response.DocumentoIdentidad,
+                        Email = response.Email,
+                        Codigo = response.Codigo,
+                        FechaGeneracion = response.FechaGeneracion,
+                        FechaExpiracion = response.FechaExpiracion,
+                        Usado = true,
+                        FechaUso = DateTime.Now
+                    };
+                    await _solicitudRepo.ActualizaDatoCodigoValidacion(solicitudUsuarioCorreoValidacion);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Código Expirado.");
+                }
+
+            }
         }
     }
 }

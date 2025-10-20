@@ -13,4 +13,12 @@ namespace Netlab.Domain.Entities
         public string ApellidoPaterno { get; set; } = string.Empty;
         public string ApellidoMaterno { get; set; } = string.Empty;
     }
+
+    public class ReniecServiceCredenciales
+    {
+        public string Url { get; set; } = string.Empty;
+        public string app { get; set; } = string.Empty;
+        public string usuario { get; set; } = string.Empty;
+        public string clave { get; set; } = string.Empty;
+    }
 }
