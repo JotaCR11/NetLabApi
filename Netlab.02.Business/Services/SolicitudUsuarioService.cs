@@ -23,9 +23,10 @@ namespace Netlab.Business.Services
         EstablecimientoCSV LeerCsv(string codigoUnico);
         Task<int> RegistrarEstablecimiento(EstablecimientoCSV establecimientocsv);
         Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
-        Task EnviarCodigoAsync(string documentoIdentidad, string email);
-        Task ValidarCodigoAsync(string documentoIdentidad, string email, string codigo);
-
+        Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email);
+        Task<string> ValidarCodigoAsync(string documentoIdentidad, string email, string codigo);
+        Task<List<Enfermedad>> ListaEnfermedad(string nombre);
+        Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre);
 
 
         Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
@@ -151,19 +152,11 @@ namespace Netlab.Business.Services
                 };
         }
 
-        public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
+        public async Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email)
         {
-            var solicitud = await _solicitudRepo.RegistrarSolicitudUsuario(solicitudUsuario);
-
-            return new SolicitudUsuarioResponse
-            {
-                RESPONSEID = solicitud.IDSOLICITUDUSUARIO,
-                CODIGOSOLICITUD = solicitud.CODIGOSOLICITUD
-            };
-        }
-
-        public async Task EnviarCodigoAsync(string documentoIdentidad, string email)
-        {
+            int registroCodigo = 0;
+            bool exito = false;
+            string error = string.Empty;
             var solicitudUsuarioCorreoValidacion = new SolicitudUsuarioCorreoValidacion()
             {
                 DocumentoIdentidad = documentoIdentidad,
@@ -172,15 +165,21 @@ namespace Netlab.Business.Services
                 FechaGeneracion = DateTime.Now,
                 FechaExpiracion = DateTime.Now.AddMinutes(10)
             };
-            await _solicitudRepo.RegistraCodigoValidacionCorreo(solicitudUsuarioCorreoValidacion);
+            registroCodigo = await _solicitudRepo.RegistraCodigoValidacionCorreo(solicitudUsuarioCorreoValidacion);
 
-            await _emailService.EnviarCorreoAsync("Codigo de verificacion", 
-                                                    solicitudUsuarioCorreoValidacion.Codigo, 
+            if (registroCodigo > 0)
+            {
+                (exito, error) = await _emailService.EnviarCorreoAsync("Codigo de verificacion",
+                                                    solicitudUsuarioCorreoValidacion.Codigo,
                                                     solicitudUsuarioCorreoValidacion.Email);
+            }
+            return (exito, error);
         }
 
-        public async Task ValidarCodigoAsync(string documentoIdentidad, string email, string codigo)
+        public async Task<string> ValidarCodigoAsync(string documentoIdentidad, string email, string codigo)
         {
+            int validaCodigo = 0;
+            string error = string.Empty;
             var response = await _solicitudRepo.ObtenerDatosValidacionCorreo(documentoIdentidad, email, codigo);
             if (response != null)
             {
@@ -196,14 +195,49 @@ namespace Netlab.Business.Services
                         Usado = true,
                         FechaUso = DateTime.Now
                     };
-                    await _solicitudRepo.ActualizaDatoCodigoValidacion(solicitudUsuarioCorreoValidacion);
+                    validaCodigo = await _solicitudRepo.ActualizaDatoCodigoValidacion(solicitudUsuarioCorreoValidacion);
                 }
                 else
                 {
-                    throw new InvalidOperationException("Código Expirado.");
+                    error ="Código Expirado.";
                 }
-
             }
+            else
+            {
+                error = "Código ingresado es inválido.";
+            }
+            return error;
+        }
+
+        public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
+        {
+            bool exito = false;
+            string error = string.Empty;
+            var solicitud = await _solicitudRepo.RegistrarSolicitudUsuario(solicitudUsuario);
+
+            if (solicitud.IDSOLICITUDUSUARIO > 0)
+            {
+                (exito, error) = await _emailService.EnviarCorreoAsync(
+                                                   "Codigo de verificacion",
+                                                   solicitud.CODIGOSOLICITUD,
+                                                   solicitud.CORREOELECTRONICO);
+            }
+
+            return new SolicitudUsuarioResponse
+            {
+                RESPONSEID = solicitud.IDSOLICITUDUSUARIO,
+                CODIGOSOLICITUD = solicitud.CODIGOSOLICITUD
+            };
+        }
+
+        public async Task<List<Enfermedad>> ListaEnfermedad(string nombre)
+        {
+            return await _solicitudRepo.ListaEnfermedad(nombre);
+        }
+
+        public async Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre)
+        {
+            return await _solicitudRepo.ListaExamenPorEnfermedad(IdEnfermedad, nombre);
         }
     }
 }

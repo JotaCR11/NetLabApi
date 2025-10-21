@@ -21,12 +21,12 @@ namespace Netlab.Domain.Entities
         public int TIPOSOLICITUD { get; set; }
         public int IDESTABLECIMIENTO { get; set; }
         public int TIPODOCUMENTO { get; set; }
-        public string NUMERODOCUMENTO { get; set; }
-        public string APELLIDOPATERNO { get; set; }
-        public string APELLIDOMATERNO { get; set; }
-        public string NOMBRE { get; set; }
-        public string CORREOELECTRONICO { get; set; }
-        public string CELULAR { get; set; }
+        public string NUMERODOCUMENTO { get; set; } = string.Empty;
+        public string APELLIDOPATERNO { get; set; } = string.Empty;
+        public string APELLIDOMATERNO { get; set; } = string.Empty;
+        public string NOMBRE { get; set; } = string.Empty;
+        public string CORREOELECTRONICO { get; set; } = string.Empty;
+        public string CELULAR { get; set; } = string.Empty;
         public int IDCONDICIONLABORAL { get; set; }
         public int IDCARGO { get; set; }
         public int IDCOMPONENTE { get; set; }
@@ -34,8 +34,8 @@ namespace Netlab.Domain.Entities
         public int NUMEROCOLEGIATURA { get; set; }
         public bool ORDENAEXAMEN { get; set; }
         public bool COMITEEXPERTO { get; set; }
-        public string CODIGOSOLICITUD { get; set; }
-        public byte[] ARCHIVO { get; set; }
+        public string CODIGOSOLICITUD { get; set; } = string.Empty;
+        public byte[] ARCHIVO { get; set; } 
         public int IDUSUARIOATENCION { get; set; }
         public DateTime FECHAATENCION { get; set; }
         public int ESTATUS { get; set; }
@@ -43,7 +43,7 @@ namespace Netlab.Domain.Entities
         public DateTime FECHAREGISTRO { get; set; }
         public int IDUSUARIOEDICION { get; set; }
         public DateTime FECHAEDICION { get; set; }
-        public List<SolicitudUsuarioRol> LISTASOLICITUDUSUARIOROL {  get; set; }
+        public List<SolicitudUsuarioRol> LISTASOLICITUDUSUARIOROL { get; set; } = new List<SolicitudUsuarioRol>();
     }
 
     [TableName("SolicitudUsuarioRol")]
@@ -135,5 +135,27 @@ namespace Netlab.Domain.Entities
         public DateTime FechaExpiracion { get; set; }
         public bool Usado { get; set; }
         public DateTime? FechaUso { get; set; }
+    }
+
+    public class Enfermedad
+    {
+        public int IdEnfermedad { get; set; }
+        public string snomed { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string patogeno { get; set; } = string.Empty;
+        public int estado { get; set; }
+        public DateTime fechaRegistro { get; set; }
+        public int idUsuarioRegistro { get; set; }
+        public DateTime fechaEdicion { get; set; }
+        public int idUsuarioEdicion { get; set; }
+    }
+
+    public class SoliciudUsuarioExamen
+    {
+        public Guid idExamen { get; set; }
+        public string nombre { get; set; } = string.Empty;   
+        public int ipruebarapida { get; set; }
+        public int idExamenAgrupado { get; set; }
+        public int estado { get; set; }
     }
 }

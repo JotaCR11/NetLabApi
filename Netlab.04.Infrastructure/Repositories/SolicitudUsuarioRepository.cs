@@ -1,18 +1,8 @@
-﻿using Azure.Core;
-using Netlab.Domain.DTOs;
-using Netlab.Domain.Entities;
+﻿using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
 using Netlab.Infrastructure.Database;
 using NPoco;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 namespace Netlab.Infrastructure.Repositories
 {
@@ -59,16 +49,6 @@ namespace Netlab.Infrastructure.Repositories
                 );
             return IdEstablecimiento;
         }
-
-        public async Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
-        {
-            using var db = _databaseFactory.GetDatabase();
-            return await db.SingleOrDefaultAsync<SolicitudUsuario>
-                (
-                    "EXEC pNLI_SolicitudUsuario @0",
-                    JsonSerializer.Serialize(solicitudUsuario)
-                );
-        }
         
         public async Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad)
         {
@@ -78,10 +58,10 @@ namespace Netlab.Infrastructure.Repositories
                 documentoIdentidad);
         }
 
-        public async Task RegistraCodigoValidacionCorreo(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion)
+        public async Task<int> RegistraCodigoValidacionCorreo(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion)
         {
             using var db = _databaseFactory.GetDatabase();
-            await db.InsertAsync(solicitudUsuarioCorreoValidacion);
+            return (int)await db.InsertAsync(solicitudUsuarioCorreoValidacion);
         }
 
         public async Task<SolicitudUsuarioCorreoValidacion?> ObtenerDatosValidacionCorreo(string documentoIdentidad,string email, string codigo)
@@ -96,10 +76,38 @@ namespace Netlab.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
-        public async Task ActualizaDatoCodigoValidacion(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion)
+        public async Task<int> ActualizaDatoCodigoValidacion(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion)
         {
             using var db = _databaseFactory.GetDatabase();
-            await db.UpdateAsync(solicitudUsuarioCorreoValidacion);
+            return await db.UpdateAsync(solicitudUsuarioCorreoValidacion);
+        }
+
+        public async Task<List<Enfermedad>> ListaEnfermedad(string nombre)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return await db.QueryAsync<Enfermedad>()
+                        .Where(x=>x.Nombre.Contains(nombre)).ToList();
+        }
+
+        public async Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            var response = await db.FetchAsync<SoliciudUsuarioExamen>(
+                "EXEC pNLS_ExamenesPorEnfermedad @0",
+                IdEnfermedad
+                );
+            return response.Where(x => x.nombre.Contains(nombre.ToUpper())).ToList();
+        }
+
+        public async Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            var json = JsonSerializer.Serialize(solicitudUsuario);
+            return await db.SingleOrDefaultAsync<SolicitudUsuario>
+                (
+                    "EXEC pNLI_SolicitudUsuario @0",
+                    JsonSerializer.Serialize(solicitudUsuario)
+                );
         }
     }
 }
