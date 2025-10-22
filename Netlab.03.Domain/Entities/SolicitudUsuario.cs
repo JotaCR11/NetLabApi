@@ -9,8 +9,9 @@ namespace Netlab.Domain.Entities
 {
     public class SolicitudUsuarioResponse
     {
-        public int RESPONSEID { get; set; }
-        public string CODIGOSOLICITUD { get; set; }
+        public string ERROR { get; set; } = string.Empty;
+        public bool ENVIOCORREO { get; set; } = false;
+        public SolicitudUsuario SOLICITUDUSUARIO { get; set; } = new SolicitudUsuario();
     }
 
     [TableName("SolicitudUsuario")]
@@ -35,14 +36,14 @@ namespace Netlab.Domain.Entities
         public bool ORDENAEXAMEN { get; set; }
         public bool COMITEEXPERTO { get; set; }
         public string CODIGOSOLICITUD { get; set; } = string.Empty;
-        public byte[] ARCHIVO { get; set; } 
-        public int IDUSUARIOATENCION { get; set; }
-        public DateTime FECHAATENCION { get; set; }
-        public int ESTATUS { get; set; }
-        public int ESTADO { get; set; }
-        public DateTime FECHAREGISTRO { get; set; }
-        public int IDUSUARIOEDICION { get; set; }
-        public DateTime FECHAEDICION { get; set; }
+        public byte[]? ARCHIVO { get; set; } = new byte[0];
+        public int? IDUSUARIOATENCION { get; set; }
+        public DateTime? FECHAATENCION { get; set; }
+        public int? ESTATUS { get; set; } 
+        public int? ESTADO { get; set; } 
+        public DateTime? FECHAREGISTRO { get; set; } 
+        public int? IDUSUARIOEDICION { get; set; }
+        public DateTime? FECHAEDICION { get; set; }
         public List<SolicitudUsuarioRol> LISTASOLICITUDUSUARIOROL { get; set; } = new List<SolicitudUsuarioRol>();
     }
 
@@ -53,76 +54,67 @@ namespace Netlab.Domain.Entities
         public int IDSOLICITUDUSUARIOROL { get; set; }
         public int IDSOLICITUDUSUARIO { get; set; }
         public int IDROL { get; set; }
-        public List<SolicitudUsuarioRolExamen> LISTASOLICITUDUSUARIOROLEXAMEN { get; set; }
-        public int ESTADO { get; set; }
-        public DateTime FECHAREGISTRO { get; set; }
-        public int IDUSUARIOEDICION { get; set; }
-        public DateTime FECHAEDICION { get; set; }
+        public List<SolicitudUsuarioRolExamen> LISTASOLICITUDUSUARIOROLEXAMEN { get; set; } = new List<SolicitudUsuarioRolExamen>();
+        public int? ESTADO { get; set; }
+        public DateTime? FECHAREGISTRO { get; set; }
+        public int? IDUSUARIOEDICION { get; set; }
+        public DateTime? FECHAEDICION { get; set; }
     }
 
     [TableName("SolicitudUsuarioRolExamen")]
-    [PrimaryKey("IdSolicitudUsuarioRol", AutoIncrement = true)]
+    [PrimaryKey("IdSolicitudUsuarioRol", AutoIncrement = false)]
     public class SolicitudUsuarioRolExamen
     {
         public int IDSOLICITUDUSUARIOROL { get; set; }
-        public Guid IdExamen { get; set; }
-        public int ESTADO { get; set; }
-        public DateTime FECHAREGISTRO { get; set; }
-        public int IDUSUARIOEDICION { get; set; }
-        public DateTime FECHAEDICION { get; set; }
+        public Guid IDEXAMEN { get; set; }
+        public int? ESTADO { get; set; }
+        public DateTime? FECHAREGISTRO { get; set; }
+        public int? IDUSUARIOEDICION { get; set; }
+        public DateTime? FECHAEDICION { get; set; }
     }
 
     public class PerfilUsuarioResponse
     {
-        public User USUARIO {  get; set; }
-        public List<Rol> ROL { get; set; }
-        public List<Examen> EXAMEN { get; set; }
+        public User USUARIO {  get; set; } = new User();
+        public List<Rol> ROL { get; set; } = new List<Rol>();
+        public List<Examen> EXAMEN { get; set; } = new List<Examen>();
     }
-
-    //[TableName("Rol")]
-    //[PrimaryKey("idRol", AutoIncrement = true)]
-    //public class _Rol
-    //{
-    //    public int IDROL { get; set; }
-    //    public string NOMBRE { get; set; }
-    //    //public List<Examen> EXAMEN { get; set; }
-    //}
 
     public class EstablecimientoCSV
     {
-        public string INSTITUCION { get; set; }
-        public string COD_IPRESS { get; set; }
-        public string NOMBRE { get; set; }
-        public string CLASIFICACION { get; set; }
-        public string TIPO_ESTABLECIMIENTO { get; set; }
-        public string DEPARTAMENTO { get; set; }
-        public string PROVINCIA { get; set; }
-        public string DISTRITO { get; set; }
-        public string UBIGEO { get; set; }
-        public string DIRECCION { get; set; }
-        public string CO_DISA { get; set; }
-        public string COD_RED { get; set; }
-        public string COD_MICRORRED { get; set; }
-        public string DISA { get; set; }
-        public string RED { get; set; }
-        public string MICRORED { get; set; }
-        public string COD_UE { get; set; }
-        public string UNIDAD_EJECUTORA { get; set; }
-        public string CATEGORIA { get; set; }
-        public string TELEFONO { get; set; }
-        public string HORARIO { get; set; }
-        public string INICIO_ACTIVIDAD { get; set; }
-        public string ESTADO { get; set; }
-        public string SITUACION { get; set; }
-        public string CONDICION { get; set; }
-        public string NORTE { get; set; }
-        public string ESTE { get; set; }
-        public string IMAGEN_1 { get; set; }
-        public string FE_ACT_IMAGEN_1 { get; set; }
-        public string IMAGEN_2 { get; set; }
-        public string FE_ACT_IMAGEN_2 { get; set; }
-        public string IMAGEN_3 { get; set; }
-        public string FE_ACT_IMAGEN_3 { get; set; }
+        public string INSTITUCION { get; set; } = string.Empty;
+        public string COD_IPRESS { get; set; } = string.Empty;
+        public string NOMBRE { get; set; } = string.Empty;
+        public string CLASIFICACION { get; set; } = string.Empty;
+        public string TIPO_ESTABLECIMIENTO { get; set; } = string.Empty;
+        public string DEPARTAMENTO { get; set; } = string.Empty;
+        public string PROVINCIA { get; set; } = string.Empty;
+        public string DISTRITO { get; set; } = string.Empty;
+        public string UBIGEO { get; set; } = string.Empty;
+        public string DIRECCION { get; set; } = string.Empty;
+        public string CO_DISA { get; set; } = string.Empty;
+        public string COD_RED { get; set; } = string.Empty;
+        public string COD_MICRORRED { get; set; } = string.Empty;
+        public string DISA { get; set; } = string.Empty;
+        public string RED { get; set; } = string.Empty;
+        public string MICRORED { get; set; } = string.Empty;
+        public string COD_UE { get; set; } = string.Empty;
+        public string UNIDAD_EJECUTORA { get; set; } = string.Empty;
+        public string CATEGORIA { get; set; } = string.Empty;
+        public string TELEFONO { get; set; } = string.Empty;
+        public string HORARIO { get; set; } = string.Empty;
+        public string INICIO_ACTIVIDAD { get; set; } = string.Empty;
+        public string ESTADO { get; set; } = string.Empty;
+        public string SITUACION { get; set; } = string.Empty;
+        public string CONDICION { get; set; } = string.Empty;
+        public string NORTE { get; set; } = string.Empty;
+        public string ESTE { get; set; } = string.Empty;
+        public string IMAGEN_1 { get; set; } = string.Empty;
+        public string FE_ACT_IMAGEN_1 { get; set; } = string.Empty;
+        public string IMAGEN_2 { get; set; } = string.Empty;
+        public string FE_ACT_IMAGEN_2 { get; set; } = string.Empty;
+        public string IMAGEN_3 { get; set; } = string.Empty;
+        public string FE_ACT_IMAGEN_3 { get; set; } = string.Empty;
     }
 
     public class SolicitudUsuarioCorreoValidacion
@@ -131,8 +123,8 @@ namespace Netlab.Domain.Entities
         public string DocumentoIdentidad { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Codigo { get; set; } = string.Empty;
-        public DateTime FechaGeneracion { get; set; }
-        public DateTime FechaExpiracion { get; set; }
+        public DateTime? FechaGeneracion { get; set; }
+        public DateTime? FechaExpiracion { get; set; }
         public bool Usado { get; set; }
         public DateTime? FechaUso { get; set; }
     }
@@ -144,9 +136,9 @@ namespace Netlab.Domain.Entities
         public string Nombre { get; set; } = string.Empty;
         public string patogeno { get; set; } = string.Empty;
         public int estado { get; set; }
-        public DateTime fechaRegistro { get; set; }
+        public DateTime? fechaRegistro { get; set; }
         public int idUsuarioRegistro { get; set; }
-        public DateTime fechaEdicion { get; set; }
+        public DateTime? fechaEdicion { get; set; }
         public int idUsuarioEdicion { get; set; }
     }
 

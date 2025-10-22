@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using Azure;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
@@ -59,16 +60,18 @@ namespace Netlab.WebApp.Controllers
 
                 return Ok(response);
             }
-            var errorResponse = new ApiResponse<bool>
-            {
-                StatusCode = StatusCodes.Status500InternalServerError,
-                Success = false,
-                Message = "Error al enviar el correo",
-                Data = false,
-                Errors = new List<string> { error }
-            };
-            return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
-        }
+            else { 
+                var errorResponse = new ApiResponse<bool>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Success = false,
+                    Message = "Error al enviar el correo",
+                    Data = false,
+                    Errors = new List<string> { error }
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+                }
+            }
 
         [HttpPost("verificacodigoseguridad")]
         public async Task<IActionResult> ValidaCodigoSeguridad(string documentoIdentidad, string email, string codigo)
@@ -101,8 +104,32 @@ namespace Netlab.WebApp.Controllers
         [HttpPost("registrarsolicitud")]
         public async Task<IActionResult> RegistrarSolicitudUsuario([FromBody] SolicitudUsuario request)
         {
-            var response = await _solicitudService.RegistrarSolicitudUsuario(request);
-            return Ok(response);
+            var solicitud = await _solicitudService.RegistrarSolicitudUsuario(request);
+            if (solicitud.SOLICITUDUSUARIO.IDSOLICITUDUSUARIO > 0)
+            {
+                var response = new ApiResponse<SolicitudUsuarioResponse>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Success = true,
+                    Message = "Solicitud generada correctamente",
+                    Data = solicitud
+                };
+                return Ok(response);
+            }
+            else
+            {
+                var errorResponse = new ApiResponse<bool>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Success = false,
+                    Message = "Error al generar la solicitud",
+                    Data = false
+
+                };
+                return Ok(errorResponse);
+            }
         }
+
+        
     }
 }

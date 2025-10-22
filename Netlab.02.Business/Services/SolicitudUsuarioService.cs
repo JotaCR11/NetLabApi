@@ -2,9 +2,11 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
+using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
 using Netlab.Helper;
+using Netlab.Infrastructure.Database;
 using Netlab.Infrastructure.ServicioReniec;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Netlab.Business.Services
 {
@@ -27,9 +30,10 @@ namespace Netlab.Business.Services
         Task<string> ValidarCodigoAsync(string documentoIdentidad, string email, string codigo);
         Task<List<Enfermedad>> ListaEnfermedad(string nombre);
         Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre);
-
-
         Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
+        Task<int> RegistroFormularioPDF(int IdSolicitud, byte[] file);
+
+
         Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto);
         
         
@@ -209,27 +213,6 @@ namespace Netlab.Business.Services
             return error;
         }
 
-        public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
-        {
-            bool exito = false;
-            string error = string.Empty;
-            var solicitud = await _solicitudRepo.RegistrarSolicitudUsuario(solicitudUsuario);
-
-            if (solicitud.IDSOLICITUDUSUARIO > 0)
-            {
-                (exito, error) = await _emailService.EnviarCorreoAsync(
-                                                   "Codigo de verificacion",
-                                                   solicitud.CODIGOSOLICITUD,
-                                                   solicitud.CORREOELECTRONICO);
-            }
-
-            return new SolicitudUsuarioResponse
-            {
-                RESPONSEID = solicitud.IDSOLICITUDUSUARIO,
-                CODIGOSOLICITUD = solicitud.CODIGOSOLICITUD
-            };
-        }
-
         public async Task<List<Enfermedad>> ListaEnfermedad(string nombre)
         {
             return await _solicitudRepo.ListaEnfermedad(nombre);
@@ -239,5 +222,93 @@ namespace Netlab.Business.Services
         {
             return await _solicitudRepo.ListaExamenPorEnfermedad(IdEnfermedad, nombre);
         }
+
+        public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
+        {
+            bool exito = false;
+            string error = string.Empty;
+            
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(solicitudUsuario.NUMERODOCUMENTO))
+                    {
+                        solicitudUsuario.CODIGOSOLICITUD = "S" + solicitudUsuario.NUMERODOCUMENTO
+                                                            + DateTime.Now.ToString("yyMMdd")
+                                                            + DateTime.Now.ToString("hhmmss");
+
+                        solicitudUsuario.ESTATUS = 1;
+                        solicitudUsuario.ESTADO = 1;
+                        solicitudUsuario.FECHAREGISTRO = DateTime.Now;
+                        solicitudUsuario.IDSOLICITUDUSUARIO = await _solicitudRepo.RegistrarSolicitud(solicitudUsuario);
+                    }
+
+                    if (solicitudUsuario.IDSOLICITUDUSUARIO > 0)
+                    {
+                        for (int i = 0; i < solicitudUsuario.LISTASOLICITUDUSUARIOROL.Count; i++)
+                        {
+                            solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].ESTADO = 1;
+                            solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].FECHAREGISTRO = DateTime.Now;
+                            solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].IDSOLICITUDUSUARIO = solicitudUsuario.IDSOLICITUDUSUARIO;
+                            solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].IDSOLICITUDUSUARIOROL = await _solicitudRepo.RegistrarSolicitudRol(solicitudUsuario.LISTASOLICITUDUSUARIOROL[i]);
+
+                            if (solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].IDSOLICITUDUSUARIOROL > 0)
+                            {
+                                int RegistroExamen = 0;
+                                for (int j = 0; j < solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN.Count; j++)
+                                {
+                                    solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j].ESTADO = 1;
+                                    solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j].FECHAREGISTRO = DateTime.Now;
+                                    solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j].IDSOLICITUDUSUARIOROL = solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].IDSOLICITUDUSUARIOROL;
+                                    RegistroExamen = await _solicitudRepo.RegistrarSolicitudRolExamen(solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j]);
+                                    if (RegistroExamen == 0)
+                                    {
+                                        throw new Exception("Error al registrar examen.");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception("Error al registrar rol.");
+                            }
+                        }
+                        scope.Complete();
+
+                        (exito, error) = await _emailService.EnviarCorreoAsync(
+                                           "Codigo de verificacion",
+                                           solicitudUsuario.CODIGOSOLICITUD,
+                                           solicitudUsuario.CORREOELECTRONICO);
+                    }
+                    else
+                    {
+                        throw new Exception("Error al registrar solicitud.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                    solicitudUsuario.IDSOLICITUDUSUARIO = 0;
+                }
+            }
+            
+            return new SolicitudUsuarioResponse
+            {
+                ERROR = error,
+                ENVIOCORREO = exito,
+                SOLICITUDUSUARIO = solicitudUsuario
+            };
+        }
+
+        public async Task<int> RegistroFormularioPDF(int IdSolicitud, byte[] file)
+        {
+            int upload = 0;
+            if (string.IsNullOrEmpty(file.ToString()))
+            {
+                upload = await _solicitudRepo.RegistroFormularioPDF(IdSolicitud,file);
+            }
+            return upload;
+        }
     }
 }
+

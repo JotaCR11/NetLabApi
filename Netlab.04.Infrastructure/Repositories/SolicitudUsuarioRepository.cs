@@ -109,5 +109,32 @@ namespace Netlab.Infrastructure.Repositories
                     JsonSerializer.Serialize(solicitudUsuario)
                 );
         }
+
+        public async Task<int> RegistrarSolicitud(SolicitudUsuario solicitudUsuario)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return Convert.ToInt32(await db.InsertAsync(solicitudUsuario));
+        }
+
+        public async Task<int> RegistrarSolicitudRol(SolicitudUsuarioRol solicitudUsuarioRol)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return Convert.ToInt32(await db.InsertAsync(solicitudUsuarioRol));
+        }
+
+        public async Task<int> RegistrarSolicitudRolExamen(SolicitudUsuarioRolExamen solicitudUsuarioRolExamen)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return Convert.ToInt32(await db.InsertAsync(solicitudUsuarioRolExamen));
+        }
+
+        public async Task<int> RegistroFormularioPDF(int IdSolicitud, byte[] file)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return await db.ExecuteAsync(
+                "pNLU_UpdateFileSolicitudUsuario @0,@1"
+                , IdSolicitud
+                , file);
+        }
     }
 }
