@@ -21,6 +21,7 @@ public class EstablecimientoPerfil
 {
     public int IDESTABLECIMIENTO { get; set; }
     public string NOMBRE { get; set; }
+    public string IMAGE { get; set; }
     public List<Rol> ROLES { get; set; }
     public List<Examen> EXAMENES { get; set; } = new();
     public List<Menu> MENUS { get; set; } = new();

@@ -17,26 +17,23 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Netlab.Business.Services
 {
     public interface ISolicitudUsuarioService
     {
         Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorCodigoUnico(string codigoUnico);
+        Task<List<EstablecimientoResponse>> ObtenerEstablecimientoSinCodigoUnico();
         EstablecimientoCSV LeerCsv(string codigoUnico);
         Task<int> RegistrarEstablecimiento(EstablecimientoCSV establecimientocsv);
         Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
-        Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email);
+        Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email, string nombre);
         Task<string> ValidarCodigoAsync(string documentoIdentidad, string email, string codigo);
         Task<List<Enfermedad>> ListaEnfermedad(string nombre);
         Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre);
         Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
-        Task<int> RegistroFormularioPDF(int IdSolicitud, byte[] file);
-
-
-        Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto);
-        
-        
+        Task<ArchivoInput> RegistroFormularioPDF(ArchivoInput file);
     }
 
     public class SolicitudUsuarioService : ISolicitudUsuarioService
@@ -57,7 +54,7 @@ namespace Netlab.Business.Services
 
         public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorCodigoUnico(string codigoUnico)
         {
-            var response = await _solicitudRepo.ObtenerEstablecimientoPorTexto(codigoUnico);
+            var response = await _solicitudRepo.ObtenerEstablecimientoPorCodigoUnico(codigoUnico);
             if (response.Count == 0)
             {
                 string _codigo = codigoUnico.TrimStart('0');
@@ -68,10 +65,16 @@ namespace Netlab.Business.Services
                     int IdEstablecimiento = await _solicitudRepo.RegistrarEstablecimiento(responseCsv);
                     if (IdEstablecimiento > 0)
                     {
-                        response = await _solicitudRepo.ObtenerEstablecimientoPorTexto(codigoUnico);
+                        response = await _solicitudRepo.ObtenerEstablecimientoPorCodigoUnico(codigoUnico);
                     }
                 }
             }
+            return response;
+        }
+
+        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoSinCodigoUnico()
+        {
+            var response = await _solicitudRepo.ObtenerEstablecimientoSinCodigoUnico();
             return response;
         }
 
@@ -118,12 +121,6 @@ namespace Netlab.Business.Services
             return await _solicitudRepo.RegistrarEstablecimiento(establecimientocsv);
         }
 
-        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto)
-        {
-            var response = await _solicitudRepo.ObtenerEstablecimientoPorTexto(texto);
-            return response;
-        }
-
         public async Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad)
         {
             var listaUsuario = new List<User>();
@@ -156,7 +153,7 @@ namespace Netlab.Business.Services
                 };
         }
 
-        public async Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email)
+        public async Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email, string nombre)
         {
             int registroCodigo = 0;
             bool exito = false;
@@ -174,7 +171,7 @@ namespace Netlab.Business.Services
             if (registroCodigo > 0)
             {
                 (exito, error) = await _emailService.EnviarCorreoAsync("Codigo de verificacion",
-                                                    solicitudUsuarioCorreoValidacion.Codigo,
+                                                    await PlantillaCorreo("ConfirmacionCorreo.html", nombre, solicitudUsuarioCorreoValidacion.Codigo),
                                                     solicitudUsuarioCorreoValidacion.Email);
             }
             return (exito, error);
@@ -191,6 +188,7 @@ namespace Netlab.Business.Services
                 {
                     var solicitudUsuarioCorreoValidacion = new SolicitudUsuarioCorreoValidacion()
                     {
+                        Id = response.Id,
                         DocumentoIdentidad = response.DocumentoIdentidad,
                         Email = response.Email,
                         Codigo = response.Codigo,
@@ -276,8 +274,8 @@ namespace Netlab.Business.Services
                         scope.Complete();
 
                         (exito, error) = await _emailService.EnviarCorreoAsync(
-                                           "Codigo de verificacion",
-                                           solicitudUsuario.CODIGOSOLICITUD,
+                                           "Registro de solicitud Netlab",
+                                           await PlantillaCorreo("RegistroSolicitud.html",solicitudUsuario.NOMBRE, solicitudUsuario.CODIGOSOLICITUD),
                                            solicitudUsuario.CORREOELECTRONICO);
                     }
                     else
@@ -299,15 +297,28 @@ namespace Netlab.Business.Services
                 SOLICITUDUSUARIO = solicitudUsuario
             };
         }
-
-        public async Task<int> RegistroFormularioPDF(int IdSolicitud, byte[] file)
+        
+        public async Task<string> PlantillaCorreo(string archivo, string nombreSolicitante, string dato)
         {
-            int upload = 0;
-            if (string.IsNullOrEmpty(file.ToString()))
+            string html = await EmailService.CargarPlantillaAsync(
+                archivo,
+                new Dictionary<string, string>
+                {
+                    { "NOMBRE_USUARIO", nombreSolicitante.ToUpper() },
+                    { "CODIGO", dato.ToUpper() }
+                }
+            );
+            return html;
+        }
+
+        public async Task<ArchivoInput> RegistroFormularioPDF(ArchivoInput file)
+        {
+            int Id = await _solicitudRepo.RegistroFormularioPDF(file);
+            if (Id > 0)
             {
-                upload = await _solicitudRepo.RegistroFormularioPDF(IdSolicitud,file);
+                file.upload = true;
             }
-            return upload;
+            return file;
         }
     }
 }

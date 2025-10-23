@@ -33,7 +33,7 @@ public class UsuarioRepository : IUsuarioRepository
     {
         using var db = _databaseFactory.GetDatabase();
         return await db.FetchAsync<EstablecimientoPerfil>(@"
-                SELECT e.idEstablecimiento, e.nombre 
+                SELECT e.idEstablecimiento, e.nombre, e.Imagen 
                 FROM Establecimiento e
                 INNER JOIN UsuarioEstablecimiento ue ON e.idEstablecimiento = ue.idEstablecimiento
                 WHERE ue.idUsuario = @0 and ue.estado = 1 AND e.estado = 1", IdUsuario);

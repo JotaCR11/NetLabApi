@@ -150,4 +150,11 @@ namespace Netlab.Domain.Entities
         public int idExamenAgrupado { get; set; }
         public int estado { get; set; }
     }
+    
+    public class ArchivoInput
+    {
+        public int IdSolicitudUsuario { get; set; }
+        public byte[] archivo { get; set; } = new byte[0];
+        public bool upload {  get; set; } = false;
+    }
 }

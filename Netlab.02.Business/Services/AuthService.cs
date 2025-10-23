@@ -145,7 +145,7 @@ public class AuthService : IAuthService
             issuer: _jwtIssuer,
             audience: _jwtAudience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(20),
+            expires: DateTime.UtcNow.AddMinutes(60),
             signingCredentials: creds
         );
 

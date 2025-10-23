@@ -28,12 +28,12 @@ namespace Netlab.WebApp.Controllers
         {
             var response = await _solicitudService.ObtenerEstablecimientoPorCodigoUnico(request);
             return Ok(response);
-        }       
+        }
 
-        [HttpGet("obtenerestablecimiento")]
-        public async Task<IActionResult> ObtenerEstablecimientoPorTexto(string request)
+        [HttpGet("obtenerestablecimientosincodigo")]
+        public async Task<IActionResult> ObtenerEstablecimientoSinCodigo()
         {
-            var response = await _solicitudService.ObtenerEstablecimientoPorTexto(request);
+            var response = await _solicitudService.ObtenerEstablecimientoSinCodigoUnico();
             return Ok(response);
         }
 
@@ -45,9 +45,9 @@ namespace Netlab.WebApp.Controllers
         }
 
         [HttpPost("validacorreo")]
-        public async Task<IActionResult> EnviarCodigo(string documentoIdentidad, string email)
+        public async Task<IActionResult> EnviarCodigo(string documentoIdentidad, string email, string nombre)
         {
-            var (exito, error) = await _solicitudService.EnviarCodigoAsync(documentoIdentidad, email);
+            var (exito, error) = await _solicitudService.EnviarCodigoAsync(documentoIdentidad, email,nombre);
             if (exito)
             {
                 var response = new ApiResponse<bool>
@@ -77,14 +77,29 @@ namespace Netlab.WebApp.Controllers
         public async Task<IActionResult> ValidaCodigoSeguridad(string documentoIdentidad, string email, string codigo)
         {
             var error = await _solicitudService.ValidarCodigoAsync(documentoIdentidad,email, codigo);
-            var response = new ApiResponse<bool>
+            if (string.IsNullOrEmpty(error))
             {
-                StatusCode = StatusCodes.Status200OK,
-                Success = true,
-                Message = error,
-                Data = true
-            };
-            return Ok(response);
+                var response = new ApiResponse<bool>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Success = true,
+                    Message = error,
+                    Data = true
+                };
+                return Ok(response);
+            }
+            else
+            {
+                var errorResponse = new ApiResponse<bool>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Success = false,
+                    Message = error,
+                    Data = false
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+            
         }
 
         [HttpGet("listaenfermedad")]
@@ -128,6 +143,12 @@ namespace Netlab.WebApp.Controllers
                 };
                 return Ok(errorResponse);
             }
+        }
+        [HttpPost("uploadpdf")]
+        public async Task<IActionResult> SubirPdfSolicitud(ArchivoInput file)
+        {
+            var response = await _solicitudService.RegistroFormularioPDF(file);
+            return Ok(response);
         }
 
         

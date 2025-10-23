@@ -14,20 +14,28 @@ namespace Netlab.Infrastructure.Repositories
         {
             _databaseFactory = databaseFactory;
         }
-        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorTexto(string texto)
+        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoPorCodigoUnico(string CodigoUnico)
         {
             using var db = _databaseFactory.GetDatabase();
             return await db.FetchAsync<EstablecimientoResponse>(
-                "EXEC pNLS_SolicitudUsuarioEstablecimientoTexto @0",
-                texto);
+                "EXEC pNLS_SolicitudUsuarioEstablecimientoCodigoUnico @0",
+                CodigoUnico);
         }
+
+        public async Task<List<EstablecimientoResponse>> ObtenerEstablecimientoSinCodigoUnico()
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return await db.FetchAsync<EstablecimientoResponse>(
+                "EXEC pNLS_SolicitudUsuarioEstablecimientoSinCodigoUnico");
+        }
+
         public async Task<int> RegistrarEstablecimiento(EstablecimientoCSV establecimientocsv)
         {
             using var db = _databaseFactory.GetDatabase();
             int IdEstablecimiento = await db.ExecuteScalarAsync<int>
                 (
                 "EXEC pNLI_SolicitudUsuarioEstablecimiento @0,@1,@2,@3,@4,@5,@6,@7,@8," +
-                                                           "@9,@10,@11,@12,@13,@14",
+                                                           "@9,@10,@11,@12,@13,@14,@15",
                 new object[] 
                     {
                         establecimientocsv.INSTITUCION,
@@ -44,24 +52,18 @@ namespace Netlab.Infrastructure.Repositories
                         establecimientocsv.MICRORED,
                         establecimientocsv.CATEGORIA,
                         establecimientocsv.NORTE,
-                        establecimientocsv.ESTE
+                        establecimientocsv.ESTE,
+                        establecimientocsv.IMAGEN_3
                     }
                 );
             return IdEstablecimiento;
         }
-        
-        public async Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad)
-        {
-            using var db = _databaseFactory.GetDatabase();
-            return await db.SingleOrDefaultAsync<PerfilUsuarioResponse>(
-                "EXEC pNLS_SolicitudUsuarioGetDatosUsuario @0",
-                documentoIdentidad);
-        }
-
+       
         public async Task<int> RegistraCodigoValidacionCorreo(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion)
         {
             using var db = _databaseFactory.GetDatabase();
-            return (int)await db.InsertAsync(solicitudUsuarioCorreoValidacion);
+            var x = await db.InsertAsync(solicitudUsuarioCorreoValidacion);
+            return Convert.ToInt32(x);
         }
 
         public async Task<SolicitudUsuarioCorreoValidacion?> ObtenerDatosValidacionCorreo(string documentoIdentidad,string email, string codigo)
@@ -99,16 +101,16 @@ namespace Netlab.Infrastructure.Repositories
             return response.Where(x => x.nombre.Contains(nombre.ToUpper())).ToList();
         }
 
-        public async Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
-        {
-            using var db = _databaseFactory.GetDatabase();
-            var json = JsonSerializer.Serialize(solicitudUsuario);
-            return await db.SingleOrDefaultAsync<SolicitudUsuario>
-                (
-                    "EXEC pNLI_SolicitudUsuario @0",
-                    JsonSerializer.Serialize(solicitudUsuario)
-                );
-        }
+        //public async Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
+        //{
+        //    using var db = _databaseFactory.GetDatabase();
+        //    var json = JsonSerializer.Serialize(solicitudUsuario);
+        //    return await db.SingleOrDefaultAsync<SolicitudUsuario>
+        //        (
+        //            "EXEC pNLI_SolicitudUsuario @0",
+        //            JsonSerializer.Serialize(solicitudUsuario)
+        //        );
+        //}
 
         public async Task<int> RegistrarSolicitud(SolicitudUsuario solicitudUsuario)
         {
@@ -128,13 +130,13 @@ namespace Netlab.Infrastructure.Repositories
             return Convert.ToInt32(await db.InsertAsync(solicitudUsuarioRolExamen));
         }
 
-        public async Task<int> RegistroFormularioPDF(int IdSolicitud, byte[] file)
+        public async Task<int> RegistroFormularioPDF(ArchivoInput file)
         {
             using var db = _databaseFactory.GetDatabase();
             return await db.ExecuteAsync(
                 "pNLU_UpdateFileSolicitudUsuario @0,@1"
-                , IdSolicitud
-                , file);
+                , file.IdSolicitudUsuario
+                , file.archivo);
         }
     }
 }

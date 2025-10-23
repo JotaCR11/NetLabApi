@@ -42,15 +42,20 @@ namespace Netlab.Helper
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(correoRemitente),
+                    From = new MailAddress(correoRemitente,"Netlab",Encoding.UTF8),
                     Subject = asunto,
+                    SubjectEncoding = Encoding.UTF8,
                     Body = mensaje,
-                    IsBodyHtml = false
+                    BodyEncoding = Encoding.UTF8,
+                    IsBodyHtml = true
                 };
                 foreach (var email in correoDestino.Split(','))
                 {
+                    mailMessage.HeadersEncoding = Encoding.UTF8;
                     mailMessage.Bcc.Add(email.Trim());
                 }
+                AlternateView htmlView = AlternateView.CreateAlternateViewFromString(mensaje, Encoding.UTF8, "text/html");
+                mailMessage.AlternateViews.Add(htmlView);
 
                 await client.SendMailAsync(mailMessage);
                 return (true, string.Empty);
@@ -60,6 +65,28 @@ namespace Netlab.Helper
                 return (false, ex.Message);
             }
 
+        }
+
+        public static async Task<string> CargarPlantillaAsync(string archivo, Dictionary<string, string> valores)
+        {
+            var rutaBase = AppContext.BaseDirectory;
+            var rutaProyecto = Directory.GetParent(rutaBase)!.Parent!.Parent!.Parent!.Parent!.FullName;
+
+            var ruta = Path.Combine(
+                rutaProyecto,
+                "Netlab.04.Infrastructure",
+                "Templates"
+            );
+            var rutaArchivo = Path.Combine(ruta,archivo);
+
+
+
+            string html = await File.ReadAllTextAsync(rutaArchivo, Encoding.UTF8);
+
+            foreach (var kvp in valores)
+                html = html.Replace($"{{{{{kvp.Key}}}}}", kvp.Value);
+
+            return html;
         }
     }
 }

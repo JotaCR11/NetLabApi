@@ -78,6 +78,7 @@ namespace Netlab.Business.Services
                     IdMenu = m.IdMenu,
                     Nombre = m.Nombre,
                     IdMenuPadre = m.IdMenuPadre,
+                    URL = m.URL,
                     Hijos = new List<Menu>()
                 })
                 .ToList();
