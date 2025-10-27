@@ -22,5 +22,6 @@ namespace Netlab.Domain.Interfaces
         Task<int> RegistrarSolicitudRolExamen(SolicitudUsuarioRolExamen solicitudUsuarioRolExamen);
         Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre);
         Task<int> RegistroFormularioPDF(ArchivoInput file);
+        Task<(SolicitudUsuario, List<SolicitudUsuarioRol>, List<SolicitudUsuarioRolExamen>)> ObtenerDatosSolicitudAsync(int idSolicitudUsuario);
     }
 }

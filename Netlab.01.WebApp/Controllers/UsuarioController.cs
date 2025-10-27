@@ -14,9 +14,11 @@ namespace Netlab.WebApp.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _userService;
-        public UsuarioController(IUsuarioService userService)
+        private readonly ISolicitudUsuarioService _solicitud;
+        public UsuarioController(IUsuarioService userService, ISolicitudUsuarioService solicitud)
         {
             _userService = userService;
+            _solicitud = solicitud;
         }
 
         [HttpGet("listacantidadusuario")]
@@ -30,6 +32,27 @@ namespace Netlab.WebApp.Controllers
         public async Task<IActionResult> ObtenerListaAtenciones([FromBody] UsuarioAtencionInput input)
         {
             var response = await _userService.ObtenerListaAtenciones(input);
+            return Ok(response);
+        }
+
+        [HttpGet("listaubigeousuario")]
+        public async Task<IActionResult> ObtenerListaUbigeoUsuario()
+        {
+            var response = await _userService.ObtenerListaUbigeoUsuario();
+            return Ok(response);
+        }
+
+        [HttpGet("listadetalleatenciones")]
+        public async Task<IActionResult> ObtenerListaDetalleAtenciones([FromBody] UsuarioAtencionInput input)
+        {
+            var response = await _userService.ObtenerListaDetalleAtenciones(input);
+            return Ok(response);
+        }
+
+        [HttpGet("obtienedatosolicitudporid")]
+        public async Task<IActionResult> ObtenerDatosSolicitudPorId(int IdSolicitudUsuario)
+        {
+            var response = await _solicitud.ObtenerDatosSolicitudAsync(IdSolicitudUsuario);
             return Ok(response);
         }
 

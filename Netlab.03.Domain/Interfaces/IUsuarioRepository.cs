@@ -19,7 +19,8 @@ namespace Netlab.Domain.Interfaces
         Task<List<User>> ObtenerUsuarioPorDocumentoIdentidad(string documentoIdentidad);
         Task<UsuarioIndicador?> ObtenerCantidadTotalUsuario();
         Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input);
-
+        Task<List<UsuarioUbigeoOutput>> ObtenerListaUbigeoUsuario();
+        Task<List<UsuarioDetalleAtencionOutput>> ObtenerListaDetalleAtenciones(UsuarioAtencionInput input);
 
 
         //Task<List<string>> ObtenerRolesAsync(int idUsuario);

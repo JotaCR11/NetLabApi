@@ -10,6 +10,7 @@ using Netlab.Infrastructure.Database;
 using Netlab.Infrastructure.ServicioReniec;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Formats.Asn1;
 using System.Globalization;
 using System.Linq;
@@ -34,6 +35,7 @@ namespace Netlab.Business.Services
         Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre);
         Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
         Task<ArchivoInput> RegistroFormularioPDF(ArchivoInput file);
+        Task<SolicitudUsuario> ObtenerDatosSolicitudAsync(int idSolicitudUsuario);
     }
 
     public class SolicitudUsuarioService : ISolicitudUsuarioService
@@ -319,6 +321,25 @@ namespace Netlab.Business.Services
                 file.upload = true;
             }
             return file;
+        }
+
+        public async Task<SolicitudUsuario> ObtenerDatosSolicitudAsync(int idSolicitudUsuario)
+        {
+            var solicitud = new SolicitudUsuario();
+            var roles = new List<SolicitudUsuarioRol>();
+            var examenes = new List<SolicitudUsuarioRolExamen>();
+
+            (solicitud,roles,examenes) = await _solicitudRepo.ObtenerDatosSolicitudAsync(idSolicitudUsuario);
+            solicitud.LISTASOLICITUDUSUARIOROL = new List<SolicitudUsuarioRol>();
+            solicitud.LISTASOLICITUDUSUARIOROL = roles;
+
+            foreach (var rol in solicitud.LISTASOLICITUDUSUARIOROL)
+            {
+                rol.LISTASOLICITUDUSUARIOROLEXAMEN = examenes
+                    .Where(e => e.IDSOLICITUDUSUARIOROL == rol.IDSOLICITUDUSUARIOROL)
+                    .ToList();
+            }
+            return solicitud;
         }
     }
 }

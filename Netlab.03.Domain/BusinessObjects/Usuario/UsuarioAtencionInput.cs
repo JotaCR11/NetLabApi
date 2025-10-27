@@ -9,7 +9,7 @@ namespace Netlab.Domain.BusinessObjects.Usuario
     public class UsuarioAtencionInput
     {
         public string texto {  get; set; }
-        public int estado { get; set; }
+        public int estatus { get; set; }
         public string ordenamiento { get; set; }
         public int tamnaño { get; set; }
         public int pagina { get; set; }
@@ -18,7 +18,7 @@ namespace Netlab.Domain.BusinessObjects.Usuario
         public UsuarioAtencionInput()
         {
             texto = string.Empty;
-            estado = 0;
+            estatus = 0;
             ordenamiento = string.Empty;
             tamnaño = 0;
             pagina = 0;
@@ -30,7 +30,7 @@ namespace Netlab.Domain.BusinessObjects.Usuario
     {
         public int IdSolicitudUsuario { get; set; }
         public string FechaSolicitud { get; set; }
-        public string NumeroDocumento { get; set; }
+        public string Login { get; set; }
         public string Nombre {  get; set; }
         public string EESS {  get; set; }
         public string Estado { get; set; }
@@ -41,10 +41,32 @@ namespace Netlab.Domain.BusinessObjects.Usuario
         {
             IdSolicitudUsuario = 0;
             FechaSolicitud = string.Empty;
-            NumeroDocumento = string.Empty;
+            Login = string.Empty;
             Nombre = string.Empty;
             EESS = string.Empty;   
             Estado = string.Empty;
+            TipoSolicitud = string.Empty;
+            Observaciones = string.Empty;
+        }
+    }
+
+    public class UsuarioDetalleAtencionOutput
+    {
+        public int IdSolicitudUsuario { get; set; }
+        public int IdUsuario { get; set; }
+        public string FechaSolicitud { get; set; }
+        public string Agente { get; set; }
+        public string Login { get; set; }
+        public string TipoSolicitud { get; set; }
+        public string Observaciones { get; set; }
+
+        public UsuarioDetalleAtencionOutput()
+        {
+            IdSolicitudUsuario = 0;
+            IdUsuario = 0;
+            FechaSolicitud = string.Empty;
+            Agente = string.Empty;
+            Login = string.Empty;
             TipoSolicitud = string.Empty;
             Observaciones = string.Empty;
         }

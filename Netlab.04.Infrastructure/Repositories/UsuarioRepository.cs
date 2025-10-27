@@ -90,7 +90,29 @@ public class UsuarioRepository : IUsuarioRepository
         return await db.FetchAsync<UsuarioAtencionOutput>(
             "EXEC pNLS_ListaHistorialAtencionSolicitudUsuario @0,@1,@2,@3,@4,@5",
             input.texto,
-            input.estado,
+            input.estatus,
+            input.ordenamiento,
+            input.tamnaño,
+            input.pagina,
+            input.total
+        );
+    }
+
+    public async Task<List<UsuarioUbigeoOutput>> ObtenerListaUbigeoUsuario()
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.FetchAsync<UsuarioUbigeoOutput>(
+            "EXEC pNLS_ListaUbigeoUsuariosActivos"
+        );
+    }
+
+    public async Task<List<UsuarioDetalleAtencionOutput>> ObtenerListaDetalleAtenciones(UsuarioAtencionInput input)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.FetchAsync<UsuarioDetalleAtencionOutput>(
+            "EXEC pNLS_ListaDetalleAtencionSolicitudUsuario @0,@1,@2,@3,@4,@5",
+            input.texto,
+            input.estatus,
             input.ordenamiento,
             input.tamnaño,
             input.pagina,

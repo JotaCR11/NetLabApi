@@ -138,5 +138,23 @@ namespace Netlab.Infrastructure.Repositories
                 , file.IdSolicitudUsuario
                 , file.archivo);
         }
+
+        public async Task<(SolicitudUsuario, List<SolicitudUsuarioRol>, List<SolicitudUsuarioRolExamen>)> ObtenerDatosSolicitudAsync(int idSolicitudUsuario)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            var solicitud = await db.SingleOrDefaultAsync<SolicitudUsuario>(
+            "WHERE IdSolicitudUsuario = @0", idSolicitudUsuario);
+
+            var roles = await db.FetchAsync<SolicitudUsuarioRol>(
+                "WHERE IdSolicitudUsuario = @0", idSolicitudUsuario);
+
+            var examenes = await db.FetchAsync<SolicitudUsuarioRolExamen>(
+                @"WHERE IdSolicitudUsuarioRol IN (
+                SELECT IdSolicitudUsuarioRol FROM SolicitudUsuarioRol WHERE IdSolicitudUsuario = @0
+              )", idSolicitudUsuario);
+
+            return (solicitud, roles, examenes);
+        }
+
     }
 }

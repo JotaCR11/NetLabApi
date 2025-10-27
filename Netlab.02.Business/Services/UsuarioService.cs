@@ -22,6 +22,8 @@ namespace Netlab.Business.Services
         Task<LoginResponse> LoginUsuario(AuthRequest login);
         Task<UsuarioIndicador?> ObtenerCantidadTotalUsuario();
         Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input);
+        Task<List<UsuarioUbigeoOutput>> ObtenerListaUbigeoUsuario();
+        Task<List<UsuarioDetalleAtencionOutput>> ObtenerListaDetalleAtenciones(UsuarioAtencionInput input);
         //Task<List<User>> ObtenerUsuarios(User usuario);
         //Task<bool> ExisteLogin(string login);
         ////Task RegistrarUsuario(User usurio);
@@ -115,6 +117,16 @@ namespace Netlab.Business.Services
         public async Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input)
         {
             return await _userRepo.ObtenerListaAtenciones(input);
+        }
+
+        public async Task<List<UsuarioUbigeoOutput>> ObtenerListaUbigeoUsuario()
+        {
+            return await _userRepo.ObtenerListaUbigeoUsuario();
+        }
+
+        public async Task<List<UsuarioDetalleAtencionOutput>> ObtenerListaDetalleAtenciones(UsuarioAtencionInput input)
+        {
+            return await _userRepo.ObtenerListaDetalleAtenciones(input);
         }
 
 
