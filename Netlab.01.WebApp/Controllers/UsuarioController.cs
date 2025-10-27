@@ -3,19 +3,34 @@ using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Netlab.Business.Services;
+using Netlab.Domain.BusinessObjects.Usuario;
 using Netlab.Domain.Entities;
 
 namespace Netlab.WebApp.Controllers
 {
     [Route("api/usuario")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _userService;
         public UsuarioController(IUsuarioService userService)
         {
             _userService = userService;
+        }
+
+        [HttpGet("listacantidadusuario")]
+        public async Task<IActionResult> ObtenerListaCantidadUsuario()
+        {
+            var response = await _userService.ObtenerCantidadTotalUsuario();
+            return Ok(response);
+        }
+
+        [HttpGet("listahistorialatenciones")]
+        public async Task<IActionResult> ObtenerListaAtenciones([FromBody] UsuarioAtencionInput input)
+        {
+            var response = await _userService.ObtenerListaAtenciones(input);
+            return Ok(response);
         }
 
         //[HttpGet("obtenerusuario")]

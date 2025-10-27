@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Netlab.Domain.BusinessObjects.Usuario;
 using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
@@ -73,6 +74,28 @@ public class UsuarioRepository : IUsuarioRepository
         using var db = _databaseFactory.GetDatabase();
         return await db.QueryAsync<User>()
             .Where(x => x.DOCUMENTOIDENTIDAD.Equals(documentoIdentidad)).ToList();
+    }
+
+    public async Task<UsuarioIndicador?> ObtenerCantidadTotalUsuario()
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.SingleOrDefaultAsync<UsuarioIndicador>(
+            "EXEC pNLS_ListaIndicadorCantidadUsuario"
+        );
+    }
+
+    public async Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.FetchAsync<UsuarioAtencionOutput>(
+            "EXEC pNLS_ListaHistorialAtencionSolicitudUsuario @0,@1,@2,@3,@4,@5",
+            input.texto,
+            input.estado,
+            input.ordenamiento,
+            input.tamnaño,
+            input.pagina,
+            input.total
+        );
     }
 
 

@@ -1,6 +1,7 @@
 ﻿
 using Azure;
 using Microsoft.AspNetCore.WebUtilities;
+using Netlab.Domain.BusinessObjects.Usuario;
 using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
@@ -19,12 +20,14 @@ namespace Netlab.Business.Services
     public interface IUsuarioService
     {
         Task<LoginResponse> LoginUsuario(AuthRequest login);
+        Task<UsuarioIndicador?> ObtenerCantidadTotalUsuario();
+        Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input);
         //Task<List<User>> ObtenerUsuarios(User usuario);
         //Task<bool> ExisteLogin(string login);
         ////Task RegistrarUsuario(User usurio);
         //Task EditarUsuario(User usurio);
         //Task<User> ObtenerPerfilUsuario(int IdUsuario);
-        
+
     }
     public class UsuarioService : IUsuarioService
     {
@@ -102,6 +105,16 @@ namespace Netlab.Business.Services
                 }
             }
             return raices;
+        }
+
+        public async Task<UsuarioIndicador?> ObtenerCantidadTotalUsuario()
+        {
+            return await _userRepo.ObtenerCantidadTotalUsuario();
+        }
+
+        public async Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input)
+        {
+            return await _userRepo.ObtenerListaAtenciones(input);
         }
 
 

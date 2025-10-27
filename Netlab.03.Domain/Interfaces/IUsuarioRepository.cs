@@ -1,4 +1,5 @@
-﻿using Netlab.Domain.DTOs;
+﻿using Netlab.Domain.BusinessObjects.Usuario;
+using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,8 @@ namespace Netlab.Domain.Interfaces
         Task<List<Examen>> ObtenerExamenesUsuario(int IdUsuario);
         Task<List<Menu>> ObtenerMenusUsuario(int IdUsuario);
         Task<List<User>> ObtenerUsuarioPorDocumentoIdentidad(string documentoIdentidad);
-
-
+        Task<UsuarioIndicador?> ObtenerCantidadTotalUsuario();
+        Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input);
 
 
 
