@@ -84,33 +84,27 @@ namespace Netlab.Infrastructure.Repositories
             return await db.UpdateAsync(solicitudUsuarioCorreoValidacion);
         }
 
-        public async Task<List<Enfermedad>> ListaEnfermedad(string nombre)
+        public async Task<List<Enfermedad>> ListaEnfermedad()
         {
             using var db = _databaseFactory.GetDatabase();
-            return await db.QueryAsync<Enfermedad>()
-                        .Where(x=>x.Nombre.Contains(nombre)).ToList();
+            return await db.QueryAsync<Enfermedad>().Where(x=>x.estado == 1).ToList();
         }
 
-        public async Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre)
+        public async Task<List<Enfermedad>> ListaEnfermedadNetlab1()
+        {
+            using var db = _databaseFactory.GetDatabaseNetlab1();
+            return await db.FetchAsync<Enfermedad>("EXEC pNLS_SolicitudUsuarioEnfermedad");
+        }
+
+        public async Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad)
         {
             using var db = _databaseFactory.GetDatabase();
             var response = await db.FetchAsync<SoliciudUsuarioExamen>(
                 "EXEC pNLS_ExamenesPorEnfermedad @0",
                 IdEnfermedad
                 );
-            return response.Where(x => x.nombre.Contains(nombre.ToUpper())).ToList();
+            return response;
         }
-
-        //public async Task<SolicitudUsuario> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
-        //{
-        //    using var db = _databaseFactory.GetDatabase();
-        //    var json = JsonSerializer.Serialize(solicitudUsuario);
-        //    return await db.SingleOrDefaultAsync<SolicitudUsuario>
-        //        (
-        //            "EXEC pNLI_SolicitudUsuario @0",
-        //            JsonSerializer.Serialize(solicitudUsuario)
-        //        );
-        //}
 
         public async Task<int> RegistrarSolicitud(SolicitudUsuario solicitudUsuario)
         {

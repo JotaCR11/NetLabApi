@@ -103,16 +103,16 @@ namespace Netlab.WebApp.Controllers
         }
 
         [HttpGet("listaenfermedad")]
-        public async Task<IActionResult> ListaEnfermedad(string nombre)
+        public async Task<IActionResult> ListaEnfermedad()
         {
-            var response = await _solicitudService.ListaEnfermedad(nombre);
+            var response = await _solicitudService.ListaEnfermedad();
             return Ok(response);
         }
 
         [HttpGet("listaexamen")]
-        public async Task<IActionResult> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre)
+        public async Task<IActionResult> ListaExamenPorEnfermedad(int IdEnfermedad)
         {
-            var response = await _solicitudService.ListaExamenPorEnfermedad(IdEnfermedad,nombre);
+            var response = await _solicitudService.ListaExamenPorEnfermedad(IdEnfermedad);
             return Ok(response);
         }
 

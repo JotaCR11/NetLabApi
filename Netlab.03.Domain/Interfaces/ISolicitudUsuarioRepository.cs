@@ -15,12 +15,12 @@ namespace Netlab.Domain.Interfaces
         Task<int> RegistraCodigoValidacionCorreo(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion);
         Task<SolicitudUsuarioCorreoValidacion> ObtenerDatosValidacionCorreo(string documentoIdentidad, string email, string codigo);
         Task<int> ActualizaDatoCodigoValidacion(SolicitudUsuarioCorreoValidacion solicitudUsuarioCorreoValidacion);
-        Task<List<Enfermedad>> ListaEnfermedad(string nombre);
-
+        Task<List<Enfermedad>> ListaEnfermedad();
+        Task<List<Enfermedad>> ListaEnfermedadNetlab1();
         Task<int> RegistrarSolicitud(SolicitudUsuario solicitudUsuario);
         Task<int> RegistrarSolicitudRol(SolicitudUsuarioRol solicitudUsuarioRol);
         Task<int> RegistrarSolicitudRolExamen(SolicitudUsuarioRolExamen solicitudUsuarioRolExamen);
-        Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre);
+        Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad);
         Task<int> RegistroFormularioPDF(ArchivoInput file);
         Task<(SolicitudUsuario, List<SolicitudUsuarioRol>, List<SolicitudUsuarioRolExamen>)> ObtenerDatosSolicitudAsync(int idSolicitudUsuario);
     }

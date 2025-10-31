@@ -56,6 +56,13 @@ namespace Netlab.WebApp.Controllers
             return Ok(response);
         }
 
+        [HttpPost("aprobarsolicitudusuario")]
+        public async Task<IActionResult> AprobarSolicitudUsuario(int IdSolicitudUsuario)
+        {
+            var response = await _userService.AprobarSolicitudUsuario(IdSolicitudUsuario);
+            return Ok(response);
+        }
+
         //[HttpGet("obtenerusuario")]
         //public async Task<IActionResult> ObtenerUsuario([FromBody] User request)
         //{

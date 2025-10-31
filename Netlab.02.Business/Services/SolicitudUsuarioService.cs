@@ -31,8 +31,8 @@ namespace Netlab.Business.Services
         Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
         Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email, string nombre);
         Task<string> ValidarCodigoAsync(string documentoIdentidad, string email, string codigo);
-        Task<List<Enfermedad>> ListaEnfermedad(string nombre);
-        Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre);
+        Task<List<Enfermedad>> ListaEnfermedad();
+        Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad);
         Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
         Task<ArchivoInput> RegistroFormularioPDF(ArchivoInput file);
         Task<SolicitudUsuario> ObtenerDatosSolicitudAsync(int idSolicitudUsuario);
@@ -213,14 +213,16 @@ namespace Netlab.Business.Services
             return error;
         }
 
-        public async Task<List<Enfermedad>> ListaEnfermedad(string nombre)
+        public async Task<List<Enfermedad>> ListaEnfermedad()
         {
-            return await _solicitudRepo.ListaEnfermedad(nombre);
+            var enfermedadNet2 = await _solicitudRepo.ListaEnfermedad();
+            var enfermedadNet1 = await _solicitudRepo.ListaEnfermedadNetlab1();
+            return enfermedadNet2.Union(enfermedadNet1).OrderBy(x => x.Nombre).ToList();
         }
 
-        public async Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad, string nombre)
+        public async Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad)
         {
-            return await _solicitudRepo.ListaExamenPorEnfermedad(IdEnfermedad, nombre);
+            return await _solicitudRepo.ListaExamenPorEnfermedad(IdEnfermedad);
         }
 
         public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
@@ -261,7 +263,11 @@ namespace Netlab.Business.Services
                                     solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j].ESTADO = 1;
                                     solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j].FECHAREGISTRO = DateTime.Now;
                                     solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j].IDSOLICITUDUSUARIOROL = solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].IDSOLICITUDUSUARIOROL;
-                                    RegistroExamen = await _solicitudRepo.RegistrarSolicitudRolExamen(solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j]);
+                                    if (solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j].IDENFERMEDAD > 0)
+                                    {
+                                        RegistroExamen = await _solicitudRepo.RegistrarSolicitudRolExamen(solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j]);
+                                    }
+                                    
                                     if (RegistroExamen == 0)
                                     {
                                         throw new Exception("Error al registrar examen.");

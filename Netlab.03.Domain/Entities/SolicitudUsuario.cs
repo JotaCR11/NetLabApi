@@ -66,7 +66,8 @@ namespace Netlab.Domain.Entities
     public class SolicitudUsuarioRolExamen
     {
         public int IDSOLICITUDUSUARIOROL { get; set; }
-        public Guid IDEXAMEN { get; set; }
+        public int IDENFERMEDAD {  get; set; }
+        public Guid? IDEXAMEN { get; set; } = Guid.Empty;
         public int? ESTADO { get; set; }
         public DateTime? FECHAREGISTRO { get; set; }
         public int? IDUSUARIOEDICION { get; set; }

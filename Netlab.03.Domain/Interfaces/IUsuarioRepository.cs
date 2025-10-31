@@ -21,16 +21,6 @@ namespace Netlab.Domain.Interfaces
         Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input);
         Task<List<UsuarioUbigeoOutput>> ObtenerListaUbigeoUsuario();
         Task<List<UsuarioDetalleAtencionOutput>> ObtenerListaDetalleAtenciones(UsuarioAtencionInput input);
-
-
-        //Task<List<string>> ObtenerRolesAsync(int idUsuario);
-        //Task<List<User>> ObtenerUsuarios(User usuario);
-        //Task<int> ExisteLogin(string login);
-        //Task<int> RegistrarUsuario(User usurio);
-        //Task EditarUsuario(User usurio);
-        //Task<User> ObtenerUsuario(int IdUsuario);
-
-
-
+        Task<UsuarioAprobadoOutput> AprobarSolicitudUsuario(int IdSolicitudUsuario, int IdUsuarioAtencion);
     }
 }

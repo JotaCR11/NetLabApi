@@ -14,6 +14,7 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 
 namespace Netlab.Business.Services
 {
@@ -24,22 +25,18 @@ namespace Netlab.Business.Services
         Task<List<UsuarioAtencionOutput>> ObtenerListaAtenciones(UsuarioAtencionInput input);
         Task<List<UsuarioUbigeoOutput>> ObtenerListaUbigeoUsuario();
         Task<List<UsuarioDetalleAtencionOutput>> ObtenerListaDetalleAtenciones(UsuarioAtencionInput input);
-        //Task<List<User>> ObtenerUsuarios(User usuario);
-        //Task<bool> ExisteLogin(string login);
-        ////Task RegistrarUsuario(User usurio);
-        //Task EditarUsuario(User usurio);
-        //Task<User> ObtenerPerfilUsuario(int IdUsuario);
-
+        Task<UsuarioAprobadoOutput> AprobarSolicitudUsuario(int IdSolicitudUsuario);
     }
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository _userRepo;
-        //private readonly EmailService _emailService;
+        private readonly IEmailService _emailService;
         //private readonly AuthService _authService;
 
-        public UsuarioService(IUsuarioRepository userRepo)
+        public UsuarioService(IUsuarioRepository userRepo, IEmailService emailService)
         {
             _userRepo = userRepo;
+            _emailService = emailService;
         }
 
         public async Task<LoginResponse> LoginUsuario(AuthRequest login)
@@ -129,70 +126,36 @@ namespace Netlab.Business.Services
             return await _userRepo.ObtenerListaDetalleAtenciones(input);
         }
 
+        public async Task<UsuarioAprobadoOutput> AprobarSolicitudUsuario(int IdSolicitudUsuario)
+        {
+            bool exito = false;
+            string error = string.Empty;
 
-        //public async Task<List<User>> ObtenerUsuarios(User usuario)
-        //{
-        //    return await _userRepo.ObtenerUsuarios(usuario);
-        //}
-        //public async Task<bool> ExisteLogin(string login)
-        //{
-        //    var response = await _userRepo.ExisteLogin(login);
-        //    return (response > 0) ? true : false;
-        //}
-        //public async Task RegistrarUsuario(User usurio)
-        //{
-        //    var response = await _userRepo.RegistrarUsuario(usurio);
-        //    if (response.Length > 1)
-        //    {
-        //        string asunto = "Datos de acceso - Netlab 2.0";
-        //        await _emailService.EnviarCorreoAsync(asunto, response);
-        //    }
-        //}
-        //public async Task EditarUsuario(User usurio)
-        //{
-        //    await _userRepo.EditarUsuario(usurio);
-        //    string asunto = "Datos de acceso - Netlab 2.0";
-        //    string mensaje = "Estimado(a) usuario: " + usurio.NOMBRES + " " + usurio.APELLIDOPATERNO + " se renovó su cuenta de usuario.";
-        //    await _emailService.EnviarCorreoAsync(asunto, mensaje);
-        //}
+            var response = await _userRepo.AprobarSolicitudUsuario(IdSolicitudUsuario,190);
+            string archivo = (response.TipoSolicitud == 1) ? "CreacionSolicitudUsuario.html" : "RenovacionSolicitudUsuario.html";
+            var correo = new DatosCorreo()
+            {
+                Archivo = archivo,
+                NombreDestino = response.NombreUsuario,
+                Login = response.Login,
+                Password = response.Password
+            };
+            (exito, error) = await _emailService.EnviarCorreoAsync("Datos de acceso - netlab 2.0", await PlantillaCorreo(correo), response.CorreoElectronico);
+            return response;
+        }
 
-        //public async Task<User> ObtenerPerfilUsuario(int IdUsuario)
-        //{
-        //    var usuario = await _userRepo.ObtenerUsuario(IdUsuario);
-        //    var rol = await _userRepo.ObtenerRolesUsuario(IdUsuario);
-        //    var examen = await _userRepo.ObtenerExamenesUsuario(IdUsuario);
-        //    var establecimiento = await _userRepo.ObtenerEstablecimientoUsuario(IdUsuario);
-        //    usuario.PERFILUSUARIO = new List<Perfil>();
-
-        //    for (int i = 0; i < establecimiento.Count; i++)
-        //    {
-        //        var perfil = new Perfil
-        //        {
-        //            idEstablecimiento = establecimiento[i].IDESTABLECIMIENTO,
-        //            rol = new List<Rol>(),
-        //            examen = new List<Examen>()
-        //        };
-        //        for (int r = 0; r < rol.Count; r++)
-        //        {
-        //            perfil.rol.Add(new Rol
-        //            {
-        //                IdRol = rol[r].IdRol,
-        //                Nombre = rol[r].Nombre
-        //            });
-        //        }
-        //        for (int e = 0; e < examen.Count; e++)
-        //        {
-        //            perfil.examen.Add(new Examen
-        //            {
-        //                IdExamen = examen[e].IdExamen,
-        //                Nombre = examen[e].Nombre
-        //            });
-        //        }
-        //        usuario.PERFILUSUARIO.Add(perfil);
-        //    }
-        //    return usuario;        
-        //}
-
-
+        public async Task<string> PlantillaCorreo(DatosCorreo correo)
+        {
+            string html = await EmailService.CargarPlantillaAsync(
+                correo.Archivo,
+                new Dictionary<string, string>
+                {
+                    { "NombreDestino", correo.NombreDestino },
+                    { "Login", correo.Login },
+                    { "Password", correo.Password }
+                }
+            );
+            return html;
+        }
     }
 }

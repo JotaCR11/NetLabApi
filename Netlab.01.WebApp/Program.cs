@@ -16,6 +16,24 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var corsPolicyName = "NetlabCorsPolicy";
+builder.Services.AddCors(options =>
+{
+    //options.AddPolicy(name: corsPolicyName,
+    //    policy =>
+    //    {
+    //        policy.WithOrigins("https://netlabapi.ins.gob.pe")
+    //              .AllowAnyHeader()
+    //              .AllowAnyMethod();
+    //    });
+    options.AddPolicy(
+        name: corsPolicyName,
+        builder =>
+        {
+            builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        });
+});
+
 // JWT config desde appsettings
 var jwtConfig = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtConfig["Key"]!);
@@ -144,6 +162,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(corsPolicyName);
 app.UseHttpsRedirection();
 
 app.UseMiddleware<LoggingMiddleware>();

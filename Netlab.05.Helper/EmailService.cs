@@ -79,8 +79,6 @@ namespace Netlab.Helper
             );
             var rutaArchivo = Path.Combine(ruta,archivo);
 
-
-
             string html = await File.ReadAllTextAsync(rutaArchivo, Encoding.UTF8);
 
             foreach (var kvp in valores)
