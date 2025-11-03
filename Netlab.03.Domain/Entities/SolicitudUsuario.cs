@@ -28,8 +28,8 @@ namespace Netlab.Domain.Entities
         public string NOMBRE { get; set; } = string.Empty;
         public string CORREOELECTRONICO { get; set; } = string.Empty;
         public string CELULAR { get; set; } = string.Empty;
-        public int IDCONDICIONLABORAL { get; set; }
-        public int IDCARGO { get; set; }
+        public string CONDICIONLABORAL { get; set; } = string.Empty;
+        public string CARGO { get; set; } = string.Empty;
         public int IDCOMPONENTE { get; set; }
         public int IDPROFESION { get; set; }
         public int NUMEROCOLEGIATURA { get; set; }

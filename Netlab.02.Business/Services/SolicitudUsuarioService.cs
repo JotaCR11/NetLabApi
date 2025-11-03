@@ -266,12 +266,11 @@ namespace Netlab.Business.Services
                                     if (solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j].IDENFERMEDAD > 0)
                                     {
                                         RegistroExamen = await _solicitudRepo.RegistrarSolicitudRolExamen(solicitudUsuario.LISTASOLICITUDUSUARIOROL[i].LISTASOLICITUDUSUARIOROLEXAMEN[j]);
-                                    }
-                                    
-                                    if (RegistroExamen == 0)
-                                    {
-                                        throw new Exception("Error al registrar examen.");
-                                    }
+                                        if (RegistroExamen == 0)
+                                        {
+                                            throw new Exception("Error al registrar examen.");
+                                        }
+                                    } 
                                 }
                             }
                             else
