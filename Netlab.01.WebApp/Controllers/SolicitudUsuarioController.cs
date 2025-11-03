@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Netlab.Business.Services;
+using Netlab.Domain.BusinessObjects.Usuario;
 using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -117,7 +118,7 @@ namespace Netlab.WebApp.Controllers
         }
 
         [HttpPost("registrarsolicitud")]
-        public async Task<IActionResult> RegistrarSolicitudUsuario([FromBody] SolicitudUsuario request)
+        public async Task<IActionResult> RegistrarSolicitudUsuario([FromBody] UsuarioPerfilInput request)
         {
             var solicitud = await _solicitudService.RegistrarSolicitudUsuario(request);
             if (solicitud.SOLICITUDUSUARIO.IDSOLICITUDUSUARIO > 0)

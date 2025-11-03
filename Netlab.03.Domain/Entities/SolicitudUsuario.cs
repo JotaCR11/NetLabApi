@@ -1,4 +1,5 @@
-﻿using NPoco;
+﻿using Netlab.Domain.BusinessObjects.SolicitudUsuario;
+using NPoco;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -157,5 +158,23 @@ namespace Netlab.Domain.Entities
         public int IdSolicitudUsuario { get; set; }
         public byte[] archivo { get; set; } = new byte[0];
         public bool upload {  get; set; } = false;
+    }
+
+    public class SolicitudUsuarioPerfil
+    {
+        public Boolean digitador { get; set; } = false;
+        public Boolean recepcionista { get; set; } = false;
+        public Boolean medicoVIH { get; set; } = false;
+        public Boolean preanalisis { get; set; } = false;
+        public List<EnfermedadExamen> examenesPreanalisis { get; set; } = new List<EnfermedadExamen>();
+        public Boolean analisis { get; set; } = false;
+        public List<EnfermedadExamen> examenesAnalisis { get; set; } = new List<EnfermedadExamen>();
+        public Boolean verificador { get; set; } = false;
+        public List<EnfermedadExamen> examenesVerificador { get; set; } = new List<EnfermedadExamen>();
+        public Boolean consultaResultados { get; set; } = false;
+        public Boolean descargaResultados { get; set; } = false;
+        public List<EnfermedadExamen> enfermedadesResultados { get; set; } = new List<EnfermedadExamen>();
+        public Boolean ordenaExamenes { get; set; } = false;
+        public Boolean comiteDeExpertos { get; set; } = false;
     }
 }

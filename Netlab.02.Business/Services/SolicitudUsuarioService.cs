@@ -2,6 +2,8 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
+using Netlab.Domain.BusinessObjects.SolicitudUsuario;
+using Netlab.Domain.BusinessObjects.Usuario;
 using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
@@ -9,6 +11,7 @@ using Netlab.Helper;
 using Netlab.Infrastructure.Database;
 using Netlab.Infrastructure.ServicioReniec;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Formats.Asn1;
@@ -28,12 +31,12 @@ namespace Netlab.Business.Services
         Task<List<EstablecimientoResponse>> ObtenerEstablecimientoSinCodigoUnico();
         EstablecimientoCSV LeerCsv(string codigoUnico);
         Task<int> RegistrarEstablecimiento(EstablecimientoCSV establecimientocsv);
-        Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad);
+        Task<UsuarioPerfilOut> ObtenerPerfilUsuario(string documentoIdentidad);
         Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email, string nombre);
         Task<string> ValidarCodigoAsync(string documentoIdentidad, string email, string codigo);
         Task<List<Enfermedad>> ListaEnfermedad();
         Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad);
-        Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario);
+        Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(UsuarioPerfilInput solicitudUsuario);
         Task<ArchivoInput> RegistroFormularioPDF(ArchivoInput file);
         Task<SolicitudUsuario> ObtenerDatosSolicitudAsync(int idSolicitudUsuario);
     }
@@ -123,18 +126,45 @@ namespace Netlab.Business.Services
             return await _solicitudRepo.RegistrarEstablecimiento(establecimientocsv);
         }
 
-        public async Task<PerfilUsuarioResponse> ObtenerPerfilUsuario(string documentoIdentidad)
+        public async Task<UsuarioPerfilOut> ObtenerPerfilUsuario(string documentoIdentidad)
         {
             var listaUsuario = new List<User>();
             var usuario = new User();
             listaUsuario = await _userRepo.ObtenerUsuarioPorDocumentoIdentidad(documentoIdentidad);
             var roles = new List<Rol>();
-            var examenes = new List<Examen>();
+            var examenes = new List<EnfermedadExamen>();
+            var perfil = new SolicitudUsuarioPerfil();
             if (listaUsuario.Count() > 0)
             {
                 usuario = listaUsuario.OrderByDescending(x => x.FECHAREGISTRO).FirstOrDefault();
                 roles = await _userRepo.ObtenerRolesUsuario(usuario.IDUSUARIO);
                 examenes = await _userRepo.ObtenerExamenesUsuario(usuario.IDUSUARIO);
+
+                perfil.ordenaExamenes = (usuario.IDTIPOUSUARIO == 4)? true : false;
+                for (int i = 0; i < roles.Count; i++)
+                {
+                    perfil.digitador = (roles[i].IdRol == 18) ? true : perfil.digitador;
+                    perfil.recepcionista = (roles[i].IdRol == 5 || roles[i].IdRol == 38) ? true : perfil.recepcionista;
+                    perfil.medicoVIH = (roles[i].IdRol == 85) ? true : perfil.medicoVIH;
+                    perfil.preanalisis = (roles[i].IdRol == 99) ? true : perfil.preanalisis;
+                    perfil.analisis = (roles[i].IdRol == 13 || roles[i].IdRol == 17) ? true : perfil.analisis;
+                    perfil.verificador = (roles[i].IdRol == 7) ? true : perfil.verificador;
+                    perfil.consultaResultados = (roles[i].IdRol == 30 || roles[i].IdRol == 50 || roles[i].IdRol == 74) ? true : perfil.consultaResultados;
+                    perfil.descargaResultados = (roles[i].IdRol == 49 || roles[i].IdRol == 50 || roles[i].IdRol == 47) ? true : perfil.descargaResultados;
+                }
+
+                perfil.examenesPreanalisis = examenes.Select(e => new EnfermedadExamen { idExamen = e.idExamen, Examen = e.Examen, idTipo = e.idTipo })
+                                                     .Where(x => x.idTipo == 5 || x.idTipo == 1 || x.idTipo == 3).ToList();
+                perfil.examenesAnalisis = examenes.Select(e => new EnfermedadExamen { idExamen = e.idExamen, Examen = e.Examen, idTipo = e.idTipo })
+                                                     .Where(x => x.idTipo == 1 || x.idTipo == 3).ToList();
+                perfil.examenesVerificador = examenes.Select(e => new EnfermedadExamen { idExamen = e.idExamen, Examen = e.Examen, idTipo = e.idTipo })
+                                                     .Where(x => x.idTipo == 2 || x.idTipo == 3).ToList();
+
+                perfil.enfermedadesResultados = examenes
+                    .GroupBy(e => e.idEnfermedad)
+                    .Select(g => g.First())
+                    .Select(e => new EnfermedadExamen { idEnfermedad = e.idEnfermedad,Enfermedad = e.Enfermedad})
+                    .ToList();
             }
             else
             {
@@ -147,12 +177,11 @@ namespace Netlab.Business.Services
                     usuario.NOMBRES = persona.Nombres;
                 }
             }   
-            return new PerfilUsuarioResponse
-                {
+            return new UsuarioPerfilOut
+            {
                     USUARIO = usuario,
-                    ROL = roles,
-                    EXAMEN = examenes
-                };
+                    Perfil = perfil
+            };
         }
 
         public async Task<(bool Exito, string MensajeError)> EnviarCodigoAsync(string documentoIdentidad, string email, string nombre)
@@ -225,11 +254,13 @@ namespace Netlab.Business.Services
             return await _solicitudRepo.ListaExamenPorEnfermedad(IdEnfermedad);
         }
 
-        public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(SolicitudUsuario solicitudUsuario)
+        public async Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(UsuarioPerfilInput input)
         {
             bool exito = false;
             string error = string.Empty;
-            
+            var solicitudUsuario = new SolicitudUsuario();
+            solicitudUsuario = await ConvertTramaToSolicitudUsuario(input);
+
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
@@ -345,6 +376,30 @@ namespace Netlab.Business.Services
                     .ToList();
             }
             return solicitud;
+        }
+
+        public Task<SolicitudUsuario> ConvertTramaToSolicitudUsuario(UsuarioPerfilInput input)
+        {
+            var solicitud = new SolicitudUsuario()
+            {
+                TIPOSOLICITUD = input.TIPOSOLICITUD,
+                IDESTABLECIMIENTO = input.IDESTABLECIMIENTO,
+                TIPODOCUMENTO = input.TIPODOCUMENTO,
+                NUMERODOCUMENTO = input.NUMERODOCUMENTO,
+                APELLIDOPATERNO = input.APELLIDOPATERNO,
+                APELLIDOMATERNO = input.APELLIDOMATERNO,
+                NOMBRE = input.NOMBRE,
+                CORREOELECTRONICO = input.CORREOELECTRONICO,
+                CELULAR = input.CELULAR,
+                CONDICIONLABORAL = input.CONDICIONLABORAL,
+                CARGO = input.CARGO,
+                IDCOMPONENTE = input.IDCOMPONENTE,
+                IDPROFESION = input.IDPROFESION,
+                NUMEROCOLEGIATURA = input.NUMEROCOLEGIATURA,
+                ORDENAEXAMEN = input.perfil.ordenaExamenes,
+                COMITEEXPERTO = input.perfil.comiteDeExpertos
+            };
+            return Task.FromResult(solicitud); 
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Netlab.Domain.Entities;
+﻿using Netlab.Domain.BusinessObjects.SolicitudUsuario;
+
+namespace Netlab.Domain.Entities;
 
 public class Usuario : General
 {
@@ -23,7 +25,7 @@ public class EstablecimientoPerfil
     public string NOMBRE { get; set; }
     public string IMAGE { get; set; }
     public List<Rol> ROLES { get; set; }
-    public List<Examen> EXAMENES { get; set; } = new();
+    public List<EnfermedadExamen> EXAMENES { get; set; } = new();
     public List<Menu> MENUS { get; set; } = new();
 }
 

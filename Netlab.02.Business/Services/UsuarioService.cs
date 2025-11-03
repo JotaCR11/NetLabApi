@@ -1,6 +1,7 @@
 ﻿
 using Azure;
 using Microsoft.AspNetCore.WebUtilities;
+using Netlab.Domain.BusinessObjects.SolicitudUsuario;
 using Netlab.Domain.BusinessObjects.Usuario;
 using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
@@ -43,7 +44,7 @@ namespace Netlab.Business.Services
         {
             var usuario = await _userRepo.GetByLoginAsync(login);
             var roles = new List<Rol>();
-            var examenes = new List<Examen>();
+            var examenes = new List<EnfermedadExamen>();
             var establecimientos = new List<EstablecimientoPerfil>();
             var token = string.Empty;
 
@@ -55,7 +56,7 @@ namespace Netlab.Business.Services
                 {
                     item.ROLES = new List<Rol>();
                     item.ROLES = await _userRepo.ObtenerRolesUsuario(usuario.IdUsuario);
-                    item.EXAMENES = new List<Examen>();
+                    item.EXAMENES = new List<EnfermedadExamen>();
                     item.EXAMENES = await _userRepo.ObtenerExamenesUsuario(usuario.IdUsuario);
                     var menuList = new List<Menu>();
                     menuList = await _userRepo.ObtenerMenusUsuario(usuario.IdUsuario);

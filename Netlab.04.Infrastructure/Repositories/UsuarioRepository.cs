@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Netlab.Domain.BusinessObjects.SolicitudUsuario;
 using Netlab.Domain.BusinessObjects.Usuario;
 using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
@@ -34,19 +35,19 @@ public class UsuarioRepository : IUsuarioRepository
     public async Task<List<EstablecimientoPerfil>> ObtenerEstablecimientoUsuario(int IdUsuario)
     {
         using var db = _databaseFactory.GetDatabase();
-        return await db.FetchAsync<EstablecimientoPerfil>("pNLS_EstablecimientoPorIdUsuario @0", IdUsuario);
+        return await db.FetchAsync<EstablecimientoPerfil>("EXEC pNLS_EstablecimientoPorIdUsuario @0", IdUsuario);
     }
 
     public async Task<List<Rol>> ObtenerRolesUsuario(int IdUsuario)
     {
         using var db = _databaseFactory.GetDatabase();
-        return await db.FetchAsync<Rol>("pNLS_RolesPorIdUsuario @0", IdUsuario);
+        return await db.FetchAsync<Rol>("EXEC pNLS_RolesPorIdUsuario @0", IdUsuario);
     }
 
-    public async Task<List<Examen>> ObtenerExamenesUsuario(int IdUsuario)
+    public async Task<List<EnfermedadExamen>> ObtenerExamenesUsuario(int IdUsuario)
     {
         using var db = _databaseFactory.GetDatabase();
-        return await db.FetchAsync<Examen>("pNLS_ExamenesPorIdUsuario @0", IdUsuario);
+        return await db.FetchAsync<EnfermedadExamen>("EXEC pNLS_ExamenesPorIdUsuario @0", IdUsuario);
     }
 
     public async Task<List<Menu>> ObtenerMenusUsuario(int IdUsuario)
