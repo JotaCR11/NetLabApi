@@ -118,4 +118,6 @@ public class UsuarioRepository : IUsuarioRepository
             new { IdSolicitudUsuario, IdUsuarioAtencion }
         );
     }
+
+    
 }

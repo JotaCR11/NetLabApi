@@ -1,4 +1,5 @@
-﻿using Netlab.Domain.Entities;
+﻿using Netlab.Domain.BusinessObjects.SolicitudUsuario;
+using Netlab.Domain.Entities;
 using Netlab.Domain.Interfaces;
 using Netlab.Infrastructure.Database;
 using NPoco;
@@ -150,5 +151,22 @@ namespace Netlab.Infrastructure.Repositories
             return (solicitud, roles, examenes);
         }
 
+        public async Task<EstadoSolicitud> EstadoSolicitudUsuario(string CodigoSolicitud)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return await db.SingleOrDefaultAsync<EstadoSolicitud>(
+                "EXEC pNLS_EstadoSolicitudUsuario @0",
+                CodigoSolicitud
+            );
+        }
+
+        public async Task<int> DeleteRollback(int idSolicitudUsuario)
+        {
+            using var db = _databaseFactory.GetDatabase();
+            return await db.ExecuteAsync(
+                "pNLD_SolicitudUsuarioRollback @0"
+                , idSolicitudUsuario);
+
+        }
     }
 }

@@ -10,6 +10,7 @@ using Netlab.Domain.Interfaces;
 using Netlab.Helper;
 using Netlab.Infrastructure.Database;
 using Netlab.Infrastructure.ServicioReniec;
+using NPoco;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using static System.Formats.Asn1.AsnWriter;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Netlab.Business.Services
@@ -39,6 +41,7 @@ namespace Netlab.Business.Services
         Task<SolicitudUsuarioResponse> RegistrarSolicitudUsuario(UsuarioPerfilInput solicitudUsuario);
         Task<ArchivoInput> RegistroFormularioPDF(ArchivoInput file);
         Task<SolicitudUsuario> ObtenerDatosSolicitudAsync(int idSolicitudUsuario);
+        Task<EstadoSolicitud> EstadoSolicitudUsuario(string CodigoSolicitud);
     }
 
     public class SolicitudUsuarioService : ISolicitudUsuarioService
@@ -261,23 +264,22 @@ namespace Netlab.Business.Services
             var solicitudUsuario = new SolicitudUsuario();
             solicitudUsuario = await ConvertTramaToSolicitudUsuario(input);
 
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
+                if (!string.IsNullOrEmpty(solicitudUsuario.NUMERODOCUMENTO))
                 {
-                    if (!string.IsNullOrEmpty(solicitudUsuario.NUMERODOCUMENTO))
-                    {
-                        solicitudUsuario.CODIGOSOLICITUD = "S" + solicitudUsuario.NUMERODOCUMENTO
-                                                            + DateTime.Now.ToString("yyMMdd")
-                                                            + DateTime.Now.ToString("hhmmss");
+                    solicitudUsuario.CODIGOSOLICITUD = "S" + solicitudUsuario.NUMERODOCUMENTO
+                                                        + DateTime.Now.ToString("yyMMdd")
+                                                        + DateTime.Now.ToString("hhmmss");
 
-                        solicitudUsuario.ESTATUS = 1;
-                        solicitudUsuario.ESTADO = 1;
-                        solicitudUsuario.FECHAREGISTRO = DateTime.Now;
-                        solicitudUsuario.IDSOLICITUDUSUARIO = await _solicitudRepo.RegistrarSolicitud(solicitudUsuario);
-                    }
-
-                    if (solicitudUsuario.IDSOLICITUDUSUARIO > 0)
+                    solicitudUsuario.ESTATUS = 0;
+                    solicitudUsuario.ESTADO = 1;
+                    solicitudUsuario.FECHAREGISTRO = DateTime.Now;
+                    solicitudUsuario.IDSOLICITUDUSUARIO = await _solicitudRepo.RegistrarSolicitud(solicitudUsuario);
+                }
+                if (solicitudUsuario.IDSOLICITUDUSUARIO > 0)
+                {
+                    if (solicitudUsuario.LISTASOLICITUDUSUARIOROL.Count > 0)
                     {
                         for (int i = 0; i < solicitudUsuario.LISTASOLICITUDUSUARIOROL.Count; i++)
                         {
@@ -301,7 +303,7 @@ namespace Netlab.Business.Services
                                         {
                                             throw new Exception("Error al registrar examen.");
                                         }
-                                    } 
+                                    }
                                 }
                             }
                             else
@@ -309,25 +311,29 @@ namespace Netlab.Business.Services
                                 throw new Exception("Error al registrar rol.");
                             }
                         }
-                        scope.Complete();
-
-                        (exito, error) = await _emailService.EnviarCorreoAsync(
-                                           "Registro de solicitud Netlab",
-                                           await PlantillaCorreo("RegistroSolicitud.html",solicitudUsuario.NOMBRE, solicitudUsuario.CODIGOSOLICITUD),
-                                           solicitudUsuario.CORREOELECTRONICO);
                     }
                     else
                     {
-                        throw new Exception("Error al registrar solicitud.");
+                        throw new Exception("No se encontraron roles.");
                     }
+
+                    (exito, error) = await _emailService.EnviarCorreoAsync(
+                                           "Registro de solicitud Netlab",
+                                           await PlantillaCorreo("RegistroSolicitud.html", solicitudUsuario.NOMBRE, solicitudUsuario.CODIGOSOLICITUD),
+                                           solicitudUsuario.CORREOELECTRONICO);
                 }
-                catch (Exception ex)
+                else
                 {
-                    error = ex.Message;
-                    solicitudUsuario.IDSOLICITUDUSUARIO = 0;
+                    throw new Exception("Error al registrar solicitud.");
                 }
             }
-            
+            catch (Exception ex)
+            {
+                error = ex.Message;
+                await _solicitudRepo.DeleteRollback(solicitudUsuario.IDSOLICITUDUSUARIO);
+                solicitudUsuario.IDSOLICITUDUSUARIO = 0;
+            }
+
             return new SolicitudUsuarioResponse
             {
                 ERROR = error,
@@ -399,7 +405,106 @@ namespace Netlab.Business.Services
                 ORDENAEXAMEN = input.perfil.ordenaExamenes,
                 COMITEEXPERTO = input.perfil.comiteDeExpertos
             };
+
+            if (input.perfil.digitador)
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 18;
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+            if (input.perfil.recepcionista && solicitud.IDESTABLECIMIENTO == 991)
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 38;
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+            else
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 5;
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+            if (input.perfil.medicoVIH)
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 77;
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+            if (input.perfil.preanalisis)
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 85;
+
+                for (int i = 0; i < input.perfil.examenesPreanalisis.Count; i++)
+                {
+                    var solicitudUsuarioRolExamen = new SolicitudUsuarioRolExamen();
+                    solicitudUsuarioRolExamen.IDENFERMEDAD = input.perfil.examenesPreanalisis[i].idEnfermedad;
+                    solicitudUsuarioRolExamen.IDEXAMEN = input.perfil.examenesPreanalisis[i].idExamen;
+                    solicitudUsuarioRol.LISTASOLICITUDUSUARIOROLEXAMEN.Add(solicitudUsuarioRolExamen);
+                }
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+            if (input.perfil.analisis)
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 17;
+
+                for (int i = 0; i < input.perfil.examenesAnalisis.Count; i++)
+                {
+                    var solicitudUsuarioRolExamen = new SolicitudUsuarioRolExamen();
+                    solicitudUsuarioRolExamen.IDENFERMEDAD = input.perfil.examenesAnalisis[i].idEnfermedad;
+                    solicitudUsuarioRolExamen.IDEXAMEN = input.perfil.examenesAnalisis[i].idExamen;
+                    solicitudUsuarioRol.LISTASOLICITUDUSUARIOROLEXAMEN.Add(solicitudUsuarioRolExamen);
+                }
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+            if (input.perfil.verificador)
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 7;
+
+                for (int i = 0; i < input.perfil.examenesVerificador.Count; i++)
+                {
+                    var solicitudUsuarioRolExamen = new SolicitudUsuarioRolExamen();
+                    solicitudUsuarioRolExamen.IDENFERMEDAD = input.perfil.examenesVerificador[i].idEnfermedad;
+                    solicitudUsuarioRolExamen.IDEXAMEN = input.perfil.examenesVerificador[i].idExamen;
+                    solicitudUsuarioRol.LISTASOLICITUDUSUARIOROLEXAMEN.Add(solicitudUsuarioRolExamen);
+                }
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+            if (input.perfil.consultaResultados)
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 30;
+
+                for (int i = 0; i < input.perfil.enfermedadesResultados.Count; i++)
+                {
+                    var solicitudUsuarioRolExamen = new SolicitudUsuarioRolExamen();
+                    solicitudUsuarioRolExamen.IDENFERMEDAD = input.perfil.enfermedadesResultados[i].idEnfermedad;
+                    solicitudUsuarioRol.LISTASOLICITUDUSUARIOROLEXAMEN.Add(solicitudUsuarioRolExamen);
+                }
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+            if (input.perfil.descargaResultados)
+            {
+                var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                solicitudUsuarioRol.IDROL = 49;
+
+                for (int i = 0; i < input.perfil.enfermedadesResultados.Count; i++)
+                {
+                    var solicitudUsuarioRolExamen = new SolicitudUsuarioRolExamen();
+                    solicitudUsuarioRolExamen.IDENFERMEDAD = input.perfil.enfermedadesResultados[i].idEnfermedad;
+                    solicitudUsuarioRol.LISTASOLICITUDUSUARIOROLEXAMEN.Add(solicitudUsuarioRolExamen);
+                }
+                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+            }
+
             return Task.FromResult(solicitud); 
+        }
+
+        public async Task<EstadoSolicitud> EstadoSolicitudUsuario(string CodigoSolicitud)
+        {
+            return await _solicitudRepo.EstadoSolicitudUsuario(CodigoSolicitud);
         }
     }
 }

@@ -47,8 +47,9 @@ namespace Netlab.Business.Services
             var examenes = new List<EnfermedadExamen>();
             var establecimientos = new List<EstablecimientoPerfil>();
             var token = string.Empty;
+            LoginResponse loginResponse = new LoginResponse();
 
-            if (usuario != null)
+            if (usuario.Respuesta == 6)
             {
                 establecimientos = await _userRepo.ObtenerEstablecimientoUsuario(usuario.IdUsuario);
 
@@ -63,13 +64,15 @@ namespace Netlab.Business.Services
                     item.MENUS = new List<Menu>();
                     item.MENUS = ConstruirJerarquia(menuList);
                 }
+                loginResponse = new LoginResponse()
+                {
+                    TOKEN = token,
+                    USUARIO = usuario,
+                    ESTABLECIMIENTOS = establecimientos
+                };
             }
-            return new LoginResponse
-            {
-                TOKEN = token,
-                USUARIO = usuario,
-                ESTABLECIMIENTOS = establecimientos
-            };
+
+            return loginResponse;
         }
 
         public static List<Menu> ConstruirJerarquia(List<Menu> menus)

@@ -1,4 +1,5 @@
-﻿using Netlab.Domain.Entities;
+﻿using Netlab.Domain.BusinessObjects.SolicitudUsuario;
+using Netlab.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +24,7 @@ namespace Netlab.Domain.Interfaces
         Task<List<SoliciudUsuarioExamen>> ListaExamenPorEnfermedad(int IdEnfermedad);
         Task<int> RegistroFormularioPDF(ArchivoInput file);
         Task<(SolicitudUsuario, List<SolicitudUsuarioRol>, List<SolicitudUsuarioRolExamen>)> ObtenerDatosSolicitudAsync(int idSolicitudUsuario);
+        Task<EstadoSolicitud> EstadoSolicitudUsuario(string CodigoSolicitud);
+        Task<int> DeleteRollback(int idSolicitudUsuario);
     }
 }

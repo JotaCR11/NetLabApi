@@ -23,7 +23,7 @@ namespace Netlab.WebApp.Controllers
             _usuarioService = usuarioService;
         }
 
-        [HttpGet("login")]
+        [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginRequest login)
         {
             var _login = new AuthRequest()
@@ -33,7 +33,7 @@ namespace Netlab.WebApp.Controllers
             };
             var response = await _usuarioService.LoginUsuario(_login);
 
-            if (response != null)
+            if (response.USUARIO != null)
             {
                 response.TOKEN = GenerateJwtToken(login.Username);
                 

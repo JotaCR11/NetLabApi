@@ -8,13 +8,14 @@ using Netlab.Business.Services;
 using Netlab.Domain.BusinessObjects.Usuario;
 using Netlab.Domain.DTOs;
 using Netlab.Domain.Entities;
+using System.Globalization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Netlab.WebApp.Controllers
 {
     [Route("api/solicitud")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class SolicitudUsuarioController : ControllerBase
     {
         private readonly ISolicitudUsuarioService _solicitudService;
@@ -152,6 +153,12 @@ namespace Netlab.WebApp.Controllers
             return Ok(response);
         }
 
+        [HttpGet("obtenerestadosolicitud")]
+        public async Task<IActionResult> ObtenerEstado(string CodigoSolicitud)
+        {
+            var response = await _solicitudService.EstadoSolicitudUsuario(CodigoSolicitud);
+            return Ok(response);
+        }
         
     }
 }
