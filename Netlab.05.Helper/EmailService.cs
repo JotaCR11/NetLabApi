@@ -79,6 +79,13 @@ namespace Netlab.Helper
             );
             var rutaArchivo = Path.Combine(ruta,archivo);
 
+            if (!File.Exists(rutaArchivo))
+            {
+                //para publicacion
+                var rutaTemplates = Path.Combine(rutaBase, "Templates");
+                rutaArchivo = Path.Combine(rutaTemplates, archivo);
+            }
+
             string html = await File.ReadAllTextAsync(rutaArchivo, Encoding.UTF8);
 
             foreach (var kvp in valores)

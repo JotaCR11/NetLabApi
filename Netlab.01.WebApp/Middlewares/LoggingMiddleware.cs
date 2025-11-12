@@ -111,7 +111,7 @@ namespace Netlab.WebApp.Middleware
             string body = await reader.ReadToEndAsync();
             context.Request.Body.Position = 0;
 
-            return body.Length > 1000 ? body.Substring(0, 1000) : body;
+            return body;//body.Length > 1000 ? body.Substring(0, 1000) : body;
         }
     }
 }

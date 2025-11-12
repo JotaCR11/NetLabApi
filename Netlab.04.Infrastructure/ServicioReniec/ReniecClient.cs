@@ -51,6 +51,10 @@ namespace Netlab.Infrastructure.ServicioReniec
         {
             string apellidoMaterno = datos[3];
             //apellido de casada
+            if (datos[4] == "SIN DATOS")
+            {
+                datos[4] = "";
+            }
             if (datos[4] != "")
             {
                 apellidoMaterno = datos[3] + " " + datos[4];
