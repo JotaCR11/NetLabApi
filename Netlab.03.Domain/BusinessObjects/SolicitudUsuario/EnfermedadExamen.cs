@@ -10,7 +10,7 @@ namespace Netlab.Domain.BusinessObjects.SolicitudUsuario
     {
         public int idEnfermedad {  get; set; }
         public string Enfermedad { get; set; }
-        public Guid idExamen { get; set; }
+        public Guid? idExamen { get; set; }
         public string Examen { get; set; }
         public int idTipo { get; set; }
         public EnfermedadExamen()

@@ -24,5 +24,7 @@ namespace Netlab.Domain.BusinessObjects.Usuario
         public int IDPROFESION { get; set; }
         public int NUMEROCOLEGIATURA { get; set; }
         public SolicitudUsuarioPerfil perfil { get; set; } = new SolicitudUsuarioPerfil();
+        public string nombreautorizado { get; set; } = string.Empty;
+        public string cargoautorizado { get; set; } = string.Empty;
     }
 }

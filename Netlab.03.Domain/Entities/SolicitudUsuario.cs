@@ -46,6 +46,8 @@ namespace Netlab.Domain.Entities
         public int? IDUSUARIOEDICION { get; set; }
         public DateTime? FECHAEDICION { get; set; }
         public List<SolicitudUsuarioRol> LISTASOLICITUDUSUARIOROL { get; set; } = new List<SolicitudUsuarioRol>();
+        public string nombreautorizado { get; set; } = string.Empty;
+        public string cargoautorizado { get; set; } = string.Empty;
     }
 
     [TableName("SolicitudUsuarioRol")]

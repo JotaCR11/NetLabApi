@@ -403,7 +403,9 @@ namespace Netlab.Business.Services
                 IDPROFESION = input.IDPROFESION,
                 NUMEROCOLEGIATURA = input.NUMEROCOLEGIATURA,
                 ORDENAEXAMEN = input.perfil.ordenaExamenes,
-                COMITEEXPERTO = input.perfil.comiteDeExpertos
+                COMITEEXPERTO = input.perfil.comiteDeExpertos,
+                nombreautorizado = input.nombreautorizado,
+                cargoautorizado = input.cargoautorizado
             };
 
             if (input.perfil.digitador)
@@ -412,17 +414,20 @@ namespace Netlab.Business.Services
                 solicitudUsuarioRol.IDROL = 18;
                 solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
             }
-            if (input.perfil.recepcionista && solicitud.IDESTABLECIMIENTO == 991)
+            if (input.perfil.recepcionista)
             {
-                var solicitudUsuarioRol = new SolicitudUsuarioRol();
-                solicitudUsuarioRol.IDROL = 38;
-                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
-            }
-            else
-            {
-                var solicitudUsuarioRol = new SolicitudUsuarioRol();
-                solicitudUsuarioRol.IDROL = 5;
-                solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+                if (solicitud.IDESTABLECIMIENTO == 991)
+                {
+                    var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                    solicitudUsuarioRol.IDROL = 38;
+                    solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+                }
+                else
+                {
+                    var solicitudUsuarioRol = new SolicitudUsuarioRol();
+                    solicitudUsuarioRol.IDROL = 5;
+                    solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
+                }
             }
             if (input.perfil.medicoVIH)
             {
@@ -481,6 +486,7 @@ namespace Netlab.Business.Services
                 {
                     var solicitudUsuarioRolExamen = new SolicitudUsuarioRolExamen();
                     solicitudUsuarioRolExamen.IDENFERMEDAD = input.perfil.enfermedadesResultados[i].idEnfermedad;
+                    solicitudUsuarioRolExamen.IDEXAMEN = null;
                     solicitudUsuarioRol.LISTASOLICITUDUSUARIOROLEXAMEN.Add(solicitudUsuarioRolExamen);
                 }
                 solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
@@ -494,6 +500,7 @@ namespace Netlab.Business.Services
                 {
                     var solicitudUsuarioRolExamen = new SolicitudUsuarioRolExamen();
                     solicitudUsuarioRolExamen.IDENFERMEDAD = input.perfil.enfermedadesResultados[i].idEnfermedad;
+                    solicitudUsuarioRolExamen.IDEXAMEN = null;
                     solicitudUsuarioRol.LISTASOLICITUDUSUARIOROLEXAMEN.Add(solicitudUsuarioRolExamen);
                 }
                 solicitud.LISTASOLICITUDUSUARIOROL.Add(solicitudUsuarioRol);
