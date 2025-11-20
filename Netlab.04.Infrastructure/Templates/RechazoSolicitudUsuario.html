@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificaci�n de Datos - Instituto Nacional de Salud</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f8fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #0066b2;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+            .header h1 {
+                font-size: 20px;
+                margin: 0;
+            }
+
+        .content {
+            padding: 30px;
+            color: #333333;
+        }
+
+            .content p {
+                font-size: 16px;
+                line-height: 1.6;
+            }
+
+        .code-box {
+            background-color: #f0f4f8;
+            border-left: 5px solid #0066b2;
+            padding: 15px;
+            text-align: center;
+            margin: 25px 0;
+            font-size: 22px;
+            letter-spacing: 4px;
+            font-weight: bold;
+            color: #0066b2;
+        }
+
+        .footer {
+            background-color: #f5f8fa;
+            color: #777777;
+            text-align: center;
+            font-size: 13px;
+            padding: 15px;
+        }
+
+            .footer a {
+                color: #0066b2;
+                text-decoration: none;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Instituto Nacional de Salud</h1>
+        </div>
+        <div class="content">
+            <p>Estimado(a) <strong>{{NombreDestino}}</strong>,</p>
+            <p>
+                Le informamos que sus solicitud de código {{Codigo}} fue rechazada,
+                le recomendamos revisar su bandeja de estados.
+            </p>
+            <p>
+                Pd: Este mensaje es de env�o autom�tico, por favor no responder.
+            </p>
+            <p>
+                Atentamente,<br>
+                <strong>Equipo soporte Netlab</strong><br>
+                Instituto Nacional de Salud
+            </p>
+        </div>
+        <div class="footer">
+            <p>� 2025 - NetLab 2.0. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

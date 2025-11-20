@@ -21,4 +21,21 @@ namespace Netlab.Domain.BusinessObjects.Usuario
             TotalPendientes = 0;
         }
     }
+
+    public class IndicadorAtencionSolicitudUsuario
+    {
+        public string MES { get; set; }
+        public int SOLICITUDES_ATENDIDAS { get; set; }
+        public int SOLICITUDES_RECHAZADAS { get; set; }
+        public int SOLICITUDES_APROBADAS { get; set; }
+        public List<UsuarioAtencionOutput> DATA { get; set; }
+        public IndicadorAtencionSolicitudUsuario()
+        {
+            MES = string.Empty;
+            SOLICITUDES_ATENDIDAS = 0;
+            SOLICITUDES_RECHAZADAS = 0;
+            SOLICITUDES_APROBADAS = 0;
+            DATA = new List<UsuarioAtencionOutput>();
+        }
+    }
 }

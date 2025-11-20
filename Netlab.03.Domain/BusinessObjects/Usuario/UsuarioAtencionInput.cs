@@ -33,9 +33,11 @@ namespace Netlab.Domain.BusinessObjects.Usuario
         public string Login { get; set; }
         public string Nombre {  get; set; }
         public string EESS {  get; set; }
+        public string Ubigeo { get; set; }
         public string Estado { get; set; }
         public string TipoSolicitud { get; set; }
         public string Observaciones {  get; set; }
+        public DateTime FechaAtencion {  get; set; }
 
         public UsuarioAtencionOutput()
         {
@@ -44,9 +46,11 @@ namespace Netlab.Domain.BusinessObjects.Usuario
             Login = string.Empty;
             Nombre = string.Empty;
             EESS = string.Empty;   
+            Ubigeo = string.Empty;
             Estado = string.Empty;
             TipoSolicitud = string.Empty;
             Observaciones = string.Empty;
+            FechaAtencion = FechaAtencion;
         }
     }
 
@@ -55,7 +59,7 @@ namespace Netlab.Domain.BusinessObjects.Usuario
         public int IdSolicitudUsuario { get; set; }
         public int IdUsuario { get; set; }
         public string FechaSolicitud { get; set; }
-        public string Agente { get; set; }
+        public string Agente { get; set; } = string.Empty;
         public string Login { get; set; }
         public string TipoSolicitud { get; set; }
         public string Observaciones { get; set; }

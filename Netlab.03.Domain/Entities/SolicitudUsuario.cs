@@ -1,4 +1,5 @@
 ﻿using Netlab.Domain.BusinessObjects.SolicitudUsuario;
+using Netlab.Domain.Entities;
 using NPoco;
 using System;
 using System.Collections.Generic;
@@ -178,5 +179,15 @@ namespace Netlab.Domain.Entities
         public List<EnfermedadExamen> enfermedadesResultados { get; set; } = new List<EnfermedadExamen>();
         public Boolean ordenaExamenes { get; set; } = false;
         public Boolean comiteDeExpertos { get; set; } = false;
+    }
+
+    public class SolicitudUsuarioRechazo
+    {
+        public int IdSolicitudUsuario { get; set; } = 0;
+        public int IdMotivo { get; set; } = 0;
+        public string Observacion { get; set; } = string.Empty;
+        public int Estado { get; set; } = 0;
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
+        public int IdUsuarioRegistro { get; set; } = 0;
     }
 }

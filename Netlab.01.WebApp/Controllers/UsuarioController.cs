@@ -28,7 +28,7 @@ namespace Netlab.WebApp.Controllers
             return Ok(response);
         }
 
-        [HttpGet("listahistorialatenciones")]
+        [HttpPost("listahistorialatenciones")]
         public async Task<IActionResult> ObtenerListaAtenciones([FromBody] UsuarioAtencionInput input)
         {
             var response = await _userService.ObtenerListaAtenciones(input);
@@ -42,7 +42,7 @@ namespace Netlab.WebApp.Controllers
             return Ok(response);
         }
 
-        [HttpGet("listadetalleatenciones")]
+        [HttpPost("listadetalleatenciones")]
         public async Task<IActionResult> ObtenerListaDetalleAtenciones([FromBody] UsuarioAtencionInput input)
         {
             var response = await _userService.ObtenerListaDetalleAtenciones(input);
@@ -60,6 +60,27 @@ namespace Netlab.WebApp.Controllers
         public async Task<IActionResult> AprobarSolicitudUsuario(int IdSolicitudUsuario)
         {
             var response = await _userService.AprobarSolicitudUsuario(IdSolicitudUsuario);
+            return Ok(response);
+        }
+
+        [HttpPost("listahistorialatencionespendientes")]
+        public async Task<IActionResult> ObtenerListaPendienteSolicitudUsuario([FromBody] UsuarioAtencionInput input)
+        {
+            var response = await _userService.ObtenerListaPendienteSolicitudUsuario(input);
+            return Ok(response);
+        }
+
+        [HttpGet("indicadoressolicitudes/{anio}")]
+        public async Task<IActionResult> IndicadorAtencionSolicitudUsuarios(int anio)
+        {
+            var response = await _userService.IndicadorAtencionSolicitudUsuarios(anio);
+            return Ok(response);
+        }
+
+        [HttpPost("rechazarsolicitudusuario")]
+        public async Task<IActionResult> RechazarSolicitudUsuario([FromBody] SolicitudUsuarioRechazo input)
+        {
+            var response = await _userService.RechazarSolicitudUsuario(input);
             return Ok(response);
         }
     }

@@ -119,5 +119,38 @@ public class UsuarioRepository : IUsuarioRepository
         );
     }
 
-    
+    public async Task<List<UsuarioAtencionOutput>> ObtenerListaPendienteSolicitudUsuario(UsuarioAtencionInput input)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.FetchAsync<UsuarioAtencionOutput>(
+            "EXEC pNLS_ListaPendienteSolicitudUsuario @0,@1,@2,@3,@4,@5",
+            input.texto,
+            input.estatus,
+            input.ordenamiento,
+            input.tamnaño,
+            input.pagina,
+            input.total
+        );
+    }
+
+    public async Task<List<UsuarioAtencionOutput>> IndicadorAtencionSolicitudUsuario(int anio)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.FetchAsync<UsuarioAtencionOutput>(
+            "EXEC pNLS_IndicadorAtencionSolicitudUsuario @0",
+            anio
+        );
+    }
+
+    public async Task<UsuarioRechazadoOutput> RechazarSolicitudUsuario(SolicitudUsuarioRechazo rechazo)
+    {
+        using var db = _databaseFactory.GetDatabase();
+        return await db.SingleOrDefaultAsync<UsuarioRechazadoOutput>(
+            "EXEC pNLU_RechazarSolicitudUsuario @0,@1,@2,@3",
+            rechazo.IdSolicitudUsuario,
+            rechazo.IdMotivo,
+            rechazo.Observacion,
+            rechazo.IdUsuarioRegistro
+        );
+    }
 }

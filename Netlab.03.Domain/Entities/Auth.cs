@@ -5,13 +5,24 @@ namespace Netlab.Domain.Entities;
 public class Usuario : General
 {
     public int IdUsuario { get; set; }
-    public string Login { get; set; }
-    public byte[] Contrasenia { get; set; }
-    public string Correo { get; set; }
-    public string Nombres { get; set; }
-    public string ApellidoPaterno { get; set; }
-    public string ApellidoMaterno { get; set; }
-    public int Estado { get; set; }
+    public string Login { get; set; } = string.Empty;
+    public byte[] Contrasenia { get; set; } = new byte[0];     
+    public string Correo { get; set; } = string.Empty;
+    public string documentoIdentidad { get; set; } = string.Empty;
+    public string Nombres { get; set; } = string.Empty;
+    public string ApellidoPaterno { get; set; } = string.Empty;
+    public string ApellidoMaterno { get; set; } = string.Empty;
+    public string Sexo {  get; set; } = string.Empty;
+    public string codigoColegio { get; set; } = string.Empty;
+    public string Profesion {  get; set; } = string.Empty;
+    public string Cargo { get; set; } = string.Empty;
+    public string RNE { get; set; } = string.Empty;
+    public string telefonoContacto { get; set; } = string.Empty;
+    public string TipoUsuario { get; set; } = string.Empty;
+    public string Componente { get; set; } = string.Empty;
+    public string TipoAcceso { get; set; } = string.Empty;
+    public string NivelAprobacion { get; set; } = string.Empty;
+    public string Avatar {  get; set; } = string.Empty;
     public int Respuesta { get; set; }
     public DateTime fechaIngreso { get; set; }
     public DateTime fechaUltimoAcceso { get; set; }

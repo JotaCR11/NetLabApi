@@ -23,6 +23,9 @@ namespace Netlab.Domain.Interfaces
         Task<List<UsuarioUbigeoOutput>> ObtenerListaUbigeoUsuario();
         Task<List<UsuarioDetalleAtencionOutput>> ObtenerListaDetalleAtenciones(UsuarioAtencionInput input);
         Task<UsuarioAprobadoOutput> AprobarSolicitudUsuario(int IdSolicitudUsuario, int IdUsuarioAtencion);
-        
+        Task<List<UsuarioAtencionOutput>> ObtenerListaPendienteSolicitudUsuario(UsuarioAtencionInput input);
+        Task<List<UsuarioAtencionOutput>> IndicadorAtencionSolicitudUsuario(int anio);
+        Task <UsuarioRechazadoOutput> RechazarSolicitudUsuario(SolicitudUsuarioRechazo rechazo);
+
     }
 }

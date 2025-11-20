@@ -16,6 +16,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Markup;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Netlab.Business.Services
 {
@@ -27,6 +28,9 @@ namespace Netlab.Business.Services
         Task<List<UsuarioUbigeoOutput>> ObtenerListaUbigeoUsuario();
         Task<List<UsuarioDetalleAtencionOutput>> ObtenerListaDetalleAtenciones(UsuarioAtencionInput input);
         Task<UsuarioAprobadoOutput> AprobarSolicitudUsuario(int IdSolicitudUsuario);
+        Task<List<UsuarioAtencionOutput>> ObtenerListaPendienteSolicitudUsuario(UsuarioAtencionInput input);
+        Task<List<IndicadorAtencionSolicitudUsuario>> IndicadorAtencionSolicitudUsuarios(int anio);
+        Task<UsuarioRechazadoOutput> RechazarSolicitudUsuario(SolicitudUsuarioRechazo rechazo);
     }
     public class UsuarioService : IUsuarioService
     {
@@ -156,10 +160,61 @@ namespace Netlab.Business.Services
                 {
                     { "NombreDestino", correo.NombreDestino },
                     { "Login", correo.Login },
-                    { "Password", correo.Password }
+                    { "Password", correo.Password },
+                    { "Codigo", correo.Codigo }
                 }
             );
             return html;
+        }
+
+        public async Task<List<UsuarioAtencionOutput>> ObtenerListaPendienteSolicitudUsuario(UsuarioAtencionInput input)
+        {
+            return await _userRepo.ObtenerListaPendienteSolicitudUsuario(input);
+        }
+
+        public async Task<List<IndicadorAtencionSolicitudUsuario>> IndicadorAtencionSolicitudUsuarios(int anio)
+        {
+            var datos = await _userRepo.IndicadorAtencionSolicitudUsuario(anio);
+            var response = datos
+                .GroupBy(x => x.FechaAtencion.Month) 
+                .Select(g => new IndicadorAtencionSolicitudUsuario
+                {
+                    MES = g.Key.ToString("00"),
+                    SOLICITUDES_ATENDIDAS = g.Count(),
+                    SOLICITUDES_RECHAZADAS = g.Count(x => x.Estado == "Rechazado"),
+                    SOLICITUDES_APROBADAS = g.Count(x => x.Estado == "Aprobado"),
+                    DATA = g.Select(x => new UsuarioAtencionOutput
+                    {
+                        FechaSolicitud = x.FechaSolicitud,
+                        Login = x.Login,
+                        Nombre = x.Nombre,
+                        EESS = x.EESS,
+                        Ubigeo = x.Ubigeo,
+                        Estado = x.Estado,
+                        TipoSolicitud = x.TipoSolicitud,
+                        Observaciones = x.Observaciones
+                    }).ToList()
+                })
+                .OrderBy(x => x.MES)
+                .ToList();
+
+            return response;
+        }
+
+        public async Task<UsuarioRechazadoOutput> RechazarSolicitudUsuario(SolicitudUsuarioRechazo rechazo)
+        {
+            bool exito = false;
+            string error = string.Empty;
+            var response =  await _userRepo.RechazarSolicitudUsuario(rechazo);
+            string archivo = "RechazoSolicitudUsuario.html";
+            var correo = new DatosCorreo()
+            {
+                Archivo = archivo,
+                NombreDestino = response.NombreUsuario,
+                Codigo = response.CodigoSolicitud
+            };
+            (exito, error) = await _emailService.EnviarCorreoAsync("Datos de acceso - netlab 2.0", await PlantillaCorreo(correo), response.CorreoElectronico);
+            return response;
         }
     }
 }
