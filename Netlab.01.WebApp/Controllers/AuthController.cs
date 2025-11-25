@@ -29,7 +29,7 @@ namespace Netlab.WebApp.Controllers
             var response = await _authService.LoginAsync(request);
             if (response == null || string.IsNullOrEmpty(response.Token)) return Unauthorized(new {message = "Credenciales inválidas" });
 
-            return Ok(new { response.Token, response.NombreUsuario, response.Roles });
+            return Ok(new { response.Token, response.NombreUsuario });
         }
     }
 

@@ -1,18 +1,38 @@
-using Netlab.Business.Services;
-using Netlab.Domain.DTOs;
-using Netlab.Domain.Interfaces;
-using Netlab.Helper;
-using Netlab.Infrastructure.Database;
-using Netlab.Infrastructure.Repositories;
-using Netlab.WebApp.Filters;
-using Netlab.WebApp.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Netlab.Business.Services;
+using Netlab.Domain.DTOs;
+using Netlab.Domain.Entities;
+using Netlab.Domain.Interfaces;
+using Netlab.Helper;
+using Netlab.Infrastructure.Database;
+using Netlab.Infrastructure.Repositories;
+using Netlab.Infrastructure.ServicioReniec;
+using Netlab.WebApp.Filters;
+using Netlab.WebApp.Middleware;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var corsPolicyName = "NetlabCorsPolicy";
+builder.Services.AddCors(options =>
+{
+    //options.AddPolicy(name: corsPolicyName,
+    //    policy =>
+    //    {
+    //        policy.WithOrigins("https://netlabapi.ins.gob.pe")
+    //              .AllowAnyHeader()
+    //              .AllowAnyMethod();
+    //    });
+    options.AddPolicy(
+        name: corsPolicyName,
+        builder =>
+        {
+            builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        });
+});
 
 // JWT config desde appsettings
 var jwtConfig = builder.Configuration.GetSection("Jwt");
@@ -71,8 +91,12 @@ builder.Services.AddScoped<IConsultaResultadosArbovirosisRepository, ConsultaRes
 builder.Services.AddScoped<IConsultaResultadosArbovirosisService, ConsultaResultadosArbovirosisService>();
 builder.Services.AddScoped<IRegistrarNotiWebRepository, RegistrarNotiWebRepository>();
 builder.Services.AddScoped<IRegistrarNotiWebService, RegistrarNotiWebService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<ISolicitudUsuarioRepository,SolicitudUsuarioRepository>();
+builder.Services.AddScoped<ISolicitudUsuarioService,SolicitudUsuarioService>();
+builder.Services.AddScoped<IReniecClient, ReniecClient>();
+builder.Services.Configure<ReniecServiceCredenciales>(
+    builder.Configuration.GetSection("ReniecService"));
 
 // Controllers
 builder.Services.AddControllers(options =>
@@ -138,6 +162,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(corsPolicyName);
 app.UseHttpsRedirection();
 
 app.UseMiddleware<LoggingMiddleware>();

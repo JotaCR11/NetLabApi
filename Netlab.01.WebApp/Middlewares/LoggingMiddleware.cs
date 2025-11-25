@@ -57,7 +57,7 @@ namespace Netlab.WebApp.Middleware
                 await RegistrarLogAccesoAsync(context, logRepo, false, mensaje, ex.StackTrace);
 
                 // Enviar correo de alerta
-                await emailService.EnviarCorreoAsync("Prueba de envío Exception", mensaje);
+                //await emailService.EnviarCorreoAsync("Prueba de envío Exception", mensaje,"");
 
                 // Re-lanzar la excepción para que el sistema la capture si es necesario
                 throw;
@@ -111,7 +111,7 @@ namespace Netlab.WebApp.Middleware
             string body = await reader.ReadToEndAsync();
             context.Request.Body.Position = 0;
 
-            return body.Length > 1000 ? body.Substring(0, 1000) : body;
+            return body;//body.Length > 1000 ? body.Substring(0, 1000) : body;
         }
     }
 }
